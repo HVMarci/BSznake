@@ -1,7 +1,7 @@
 # Compiler and flags
 CC      := gcc
 #CFLAGS  := -Wall -Wextra -Werror -Iinclude $(shell sdl2-config --cflags)
-CFLAGS  := -Wall -Wextra -Iinclude -IC:\MinGW\w64devkit\include\SDL2
+CFLAGS  := -Wall -Wextra -Werror -Iinclude -IC:\MinGW\w64devkit\include\SDL2
 #LDFLAGS := $(shell sdl2-config --libs)
 LDFLAGS := -LC:\MinGW\w64devkit\lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_gfx -lSDL2_ttf# -mwindows
 
