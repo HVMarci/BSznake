@@ -2,6 +2,8 @@
 #include <stdbool.h>
 #include <SDL.h>
 #include <SDL2_gfxPrimitives.h>
+
+#include "debugmalloc.h"
  
 typedef struct Snake {
     int len;
@@ -41,6 +43,7 @@ void sdl_init(int szeles, int magas, SDL_Window **pwindow, SDL_Renderer **prende
  * betesz a feldolgozando esemenyek koze (push) egy felhasznaloi esemenyt */
 Uint32 idozit(Uint32 ms, void *param) {
     SDL_Event ev;
+    if (param != NULL) {}
     ev.type = SDL_USEREVENT;
     SDL_PushEvent(&ev);
     return ms;   /* ujabb varakozas */
@@ -53,10 +56,9 @@ void remove_golyo(SDL_Renderer *renderer, Golyo *g){
     filledCircleRGBA(renderer, g->x, g->y, 10, 0x00, 0x00, 0x00, 0xFF);
 }
  
-int main(int argc, char *argv[]) {
+int main123(int argc, char *argv[]) {
     enum { ABLAK=720 };
     enum { GOLYO_R=10 };
-    
     
     SDL_Window *window;
     SDL_Renderer *renderer;

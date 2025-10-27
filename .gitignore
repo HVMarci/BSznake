@@ -36,3 +36,6 @@ game  # your final binary name if it's in the root
 # Windows system files
 Thumbs.db
 desktop.ini
+
+# Makefile, as it can be platform dependent
+Makefile

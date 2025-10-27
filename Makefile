@@ -1,9 +1,9 @@
 # Compiler and flags
 CC      := gcc
 #CFLAGS  := -Wall -Wextra -Werror -Iinclude $(shell sdl2-config --cflags)
-CFLAGS  := -Wall -Wextra -Werror -Iinclude -IC:\MinGW\w64devkit\include\SDL2
+CFLAGS  := -Wall -Wextra -Iinclude "-IC:\Program Files\CodeBlocks\MinGW\include\SDL2"
 #LDFLAGS := $(shell sdl2-config --libs)
-LDFLAGS := -LC:\MinGW\w64devkit\lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_gfx -lSDL2_ttf# -mwindows
+LDFLAGS := "-LC:\Program Files\CodeBlocks\MinGW\lib" -lmingw32 -lSDL2main -lSDL2 -lSDL2_gfx -lSDL2_ttf# -mwindows
 
 # Directories
 SRC_DIR := src
@@ -22,18 +22,19 @@ all: $(TARGET)
 
 # Link
 $(TARGET): $(OBJ)
-	@mkdir -p $(BIN_DIR)
+	@if not exist $(BIN_DIR) mkdir $(BIN_DIR)
 	$(CC) $(OBJ) -o $@ $(LDFLAGS)
 	@echo "Build complete: $@"
 
 # Compile
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	@mkdir -p $(OBJ_DIR)
+	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Clean up
 clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR)
+	@if exist $(OBJ_DIR) rmdir /S /Q $(OBJ_DIR)
+	@if exist $(BIN_DIR) rmdir /S /Q $(BIN_DIR)
 	@echo "Cleaned all build files."
 
 # Rebuild everything
