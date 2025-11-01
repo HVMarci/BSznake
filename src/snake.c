@@ -5,8 +5,9 @@
 #include "debugmalloc.h"
 #include "cli.h"
 
-void init_snake(Snake *s, int len, int x, int y) {
+void init_snake(Snake *s, int len, int x, int y, double speed) {
     s->len = len;
+    s->speed = speed;
     s->head = malloc(sizeof(Block));
     s->head->x = x;
     s->head->y = y;
@@ -34,9 +35,9 @@ void init_snake(Snake *s, int len, int x, int y) {
 /**
  * Snake must be freed!
  */
-Snake *new_snake(int len, int x, int y) {
+Snake *new_snake(int len, int x, int y, double speed) {
     Snake *s = malloc(sizeof(Snake));
-    init_snake(s, len, x, y);
+    init_snake(s, len, x, y, speed);
     return s;
 }
 
@@ -92,6 +93,7 @@ void move_snake(Snake *s, int dir) {
     // TODO végét törölni
     Block *oldtail = s->tail;
     s->tail = s->tail->prev;
+    s->tail->type = TP_TAIL;
     free(oldtail);
     s->tail->next = NULL;
 

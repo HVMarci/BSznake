@@ -34,12 +34,13 @@ typedef struct Block {
 
 typedef struct Snake {
     int len;
+    double speed;
     Block *head, *tail;
 } Snake;
 
-void init_snake(Snake* s, int len, int x, int y);
+void init_snake(Snake* s, int len, int x, int y, double speed);
 
-Snake *new_snake(int len, int x, int y);
+Snake *new_snake(int len, int x, int y, double speed);
 
 void free_snake(Snake* s);
 void move_snake(Snake *s, int dir);

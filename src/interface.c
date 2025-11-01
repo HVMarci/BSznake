@@ -5,7 +5,7 @@
 
 #include "debugmalloc.h"
 
-Screen *init_screen(int w, int h, int type) {
+Screen *init_screen(int w, int h, int type, void (*game_loop)(void)) {
     Screen *sc = malloc(sizeof(Screen));
 
     if (sc == NULL) return NULL;
@@ -13,6 +13,7 @@ Screen *init_screen(int w, int h, int type) {
     sc->w = w;
     sc->h = h;
     sc->type = type;
+    sc->game_loop = game_loop;
 
     if (type == TYPE_CLI) {
         cli_init();
@@ -41,9 +42,17 @@ void draw_block(Screen const *sc, Block const *b) {
 
 void draw_snake(Screen const *sc, Snake const *s) {
     if (sc->type == TYPE_CLI) {
-        cli_draw_snake(s);
+        cli_draw_snake(sc, s);
     } else {
         gui_draw_snake(s);
+    }
+}
+
+void erase_snake(Screen const *sc, Snake const *s) {
+    if (sc->type == TYPE_CLI) {
+        cli_erase_snake(sc, s);
+    } else {
+        gui_erase_snake(s);
     }
 }
 

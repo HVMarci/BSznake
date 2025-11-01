@@ -8,12 +8,14 @@
 
 typedef struct Screen {
     int w, h, type;
+    void (*game_loop)(void);
 } Screen;
 
-Screen *init_screen(int w, int h, int type);
+Screen *init_screen(int w, int h, int type, void (*game_loop)(void));
 void draw_map(Screen const *sc);
 void draw_block(Screen const *sc, Block const *b);
 void draw_snake(Screen const *sc, Snake const *s);
+void erase_snake(Screen const *sc, Snake const *s);
 void free_screen(Screen *sc);
 
 // Game loop
