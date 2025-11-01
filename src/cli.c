@@ -14,10 +14,23 @@ const char *TP_CH[] = {"═", "║", "╔", "╗", "╚", "╝", "o", "x"};
 //const char TP_CH_SIZE[] = {3, 3, 3, 3, 3, 3, 1, 1};
 //const char TP_CH_INDEX[] = {0, 3, 6, 9, 12, 15, 18, 19};
 
+#ifdef _WIN32
+void ShowConsoleCursor(bool showFlag) {
+    HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    CONSOLE_CURSOR_INFO     cursorInfo;
+
+    GetConsoleCursorInfo(out, &cursorInfo);
+    cursorInfo.bVisible = showFlag; // set the cursor visibility
+    SetConsoleCursorInfo(out, &cursorInfo);
+}
+#endif
+
 void cli_init() {
 #ifdef _WIN32
     SetConsoleCP(65001);
     SetConsoleOutputCP(65001);
+    ShowConsoleCursor(false);
 #endif // _WIN32
 
     econio_clrscr();
@@ -28,34 +41,44 @@ void cli_draw_map(Screen const *sc) {
     econio_clrscr();
     econio_gotoxy(0, 0);
     printf("┌");
-    for (int i = 1; i <= sc->w; i++) {
+    for (int i = 1; i <= sc->w * 2; i++) {
         printf("─");
     }
     printf("┐");
     for (int i = 1; i <= sc->h; i++) {
         econio_gotoxy(0, i);
         printf("│");
-        econio_gotoxy(sc->w+1, i);
+        econio_gotoxy((sc->w*2) + 1, i);
         printf("│");
     }
     econio_gotoxy(0, sc->h + 1);
     printf("└");
-    for (int i = 1; i <= sc->w; i++) {
+    for (int i = 1; i <= sc->w * 2; i++) {
         printf("─");
     }
     printf("┘");
 
+    econio_gotoxy(0, sc->h + 2);
     econio_flush();
 }
 
 // char* helyett char**-gal jobb lenne és printf("%s")-sel?
 // TODO a karaktereknek 2 szélesnek kéne lenniük, hogy vízszintesen is ugyanolyan gyors legyen a kígyó, mint függőlegesen
+// minden ptlan x koordinátájú karakterben van kígyó, párosokban a filler vonalak
 void cli_draw_block(Block const *b) {
-    econio_gotoxy(b->x, b->y);
+    if (b->dir == DIR_R && b->type != TP_HEAD) {
+        econio_gotoxy(b->x * 2 + 1, b->y + 1);
+        printf("%s%s", TP_CH[b->type], TP_CH[TP_VSZ]);
+    } else if (b->dir == DIR_L && b->type != TP_HEAD) {
+        econio_gotoxy(b->x * 2, b->y + 1);
+        printf("%s%s", TP_CH[TP_VSZ], TP_CH[b->type]);
+    } else {
+        econio_gotoxy(b->x * 2 + 1, b->y + 1);
+        printf("%s", TP_CH[b->type]);
+    }
     /*for (int i = 0; i < TP_CH_SIZE[b->type]; i++) {
         printf("%c", TP_CH[TP_CH_INDEX[b->type] + i]);
     }*/
-    printf("%s", TP_CH[b->type]);
     //printf("o");
 }
 
@@ -63,15 +86,29 @@ void cli_draw_snake(Screen const *sc, Snake const *s) {
     for (Block *ptr = s->head; ptr != NULL; ptr = ptr->next) {
         cli_draw_block(ptr);
     }
-    econio_gotoxy(0, sc->h + 1);
+    econio_gotoxy(0, sc->h + 2);
+    econio_flush();
+}
+
+void cli_erase_block(Block const *b) {
+    if (b->dir == DIR_R && b->type != TP_HEAD) {
+        econio_gotoxy(b->x * 2 + 1, b->y + 1);
+        printf("  ");
+    } else if (b->dir == DIR_L && b->type != TP_HEAD) {
+        econio_gotoxy(b->x * 2, b->y + 1);
+        printf("  ");
+    } else {
+        econio_gotoxy(b->x * 2 + 1, b->y + 1);
+        printf(" ");
+    }
 }
 
 void cli_erase_snake(Screen const *sc, Snake const *s) {
     for (Block *ptr = s->head; ptr != NULL; ptr = ptr->next) {
-        econio_gotoxy(ptr->x, ptr->y);
-        printf(" ");
+        cli_erase_block(ptr);
     }
-    econio_gotoxy(0, sc->h + 1);
+    econio_gotoxy(0, sc->h + 2);
+    econio_flush();
 }
 
 // 0: okay, 1: exit
@@ -80,8 +117,9 @@ void cli_erase_snake(Screen const *sc, Snake const *s) {
  * A main-ben kéne a többi dolgot lekezelni
  * Aztán a main-nek megint meg kéne hívnia a rajzoló függvényeket
  * És kezdődne előröl az egész
+ * return: key pressed -1 -> játék vége
  */
-int cli_play_game(Screen const *sc, Snake *s) {
+int cli_next_frame(Screen const *sc, Snake *s) {
     econio_sleep(s->speed);
 
     // ha egy frame alatt több billentyű is le lett ütve, akkor az utolsó számítson
@@ -92,37 +130,33 @@ int cli_play_game(Screen const *sc, Snake *s) {
         // elvileg dobálhat random nullákat a beolvasás
     }
 
-    int dir = s->head->dir;
+    //int dir = s->head->dir;
     switch (key) {
         case KEY_UP:
-            if (s->head->dir != DIR_D) 
-                dir = DIR_U;
-            break;
+            return SNAKE_KEY_UP;
         case KEY_RIGHT:
-            if (s->head->dir != DIR_L)
-                dir = DIR_R;
-            break;
+            return SNAKE_KEY_RIGHT;
         case KEY_DOWN:
-            if (s->head->dir != DIR_U)
-                dir = DIR_D;
-            break;
+            return SNAKE_KEY_DOWN;
         case KEY_LEFT:
-            if (s->head->dir != DIR_R)
-                dir = DIR_L;
-            break;
+            return SNAKE_KEY_LEFT;
         case KEY_ESCAPE:
-            return 1;
+            return SNAKE_KEY_ESCAPE;
     }
 
-    cli_erase_snake(sc, s);
+    /*erase_snake(sc, s);
     move_snake(s, dir);
     draw_snake(sc, s);
-    econio_flush();
+    econio_flush();*/
 
-    return 0;
+    return SNAKE_KEY_NONE;
 }
 
 void cli_exit(Screen const *sc) {
     econio_gotoxy(0, sc->h + 2);
     econio_normalmode();
+
+#ifdef _WIN32
+    ShowConsoleCursor(true);
+#endif
 }

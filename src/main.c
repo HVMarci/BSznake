@@ -8,14 +8,14 @@
 
 #include "debugmalloc.h"
 
+// lehet felesleges :)
 void game_loop() {
     printf("meghivva");
 }
 
-#include "cli.h"
 void start_game(int interface_type) {
     // TODO query window size - windows.h-ból?
-    Screen *sc = init_screen(70, 20, interface_type, game_loop);
+    Screen *sc = init_screen(35, 20, interface_type, game_loop);
     Snake *s = new_snake(5, 10, 3, .1);
 
     draw_map(sc);
@@ -25,7 +25,33 @@ void start_game(int interface_type) {
 
     while (!exit) {
         //exit = next_frame();
-        exit = cli_play_game(sc, s);
+        int key = next_frame(sc, s);
+        int dir = s->head->dir;
+        switch (key) {
+            case SNAKE_KEY_UP:
+                if (s->head->dir != DIR_D) 
+                    dir = DIR_U;
+                break;
+            case SNAKE_KEY_RIGHT:
+                if (s->head->dir != DIR_L)
+                    dir = DIR_R;
+                break;
+            case SNAKE_KEY_DOWN:
+                if (s->head->dir != DIR_U)
+                    dir = DIR_D;
+                break;
+            case SNAKE_KEY_LEFT:
+                if (s->head->dir != DIR_R)
+                    dir = DIR_L;
+                break;
+            case SNAKE_KEY_ESCAPE:
+                exit = true;
+                break;
+        }
+
+        erase_snake(sc, s);
+        move_snake(s, dir);
+        draw_snake(sc, s);
     }
     
     free_snake(s);

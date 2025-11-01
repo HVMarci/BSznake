@@ -22,6 +22,7 @@ void init_snake(Snake *s, int len, int x, int y, double speed) {
         cur->next->x = x - i;
         cur->next->y = y;
         cur->next->type = TP_VSZ;
+        cur->next->dir = DIR_R;
         s->head->dir = DIR_R;
         cur->next->next = NULL;
         cur->next->prev = cur;
@@ -98,6 +99,7 @@ void move_snake(Snake *s, int dir) {
     s->tail->next = NULL;
 
     head->next = s->head;
+    s->head->dir = head->dir;
     s->head->prev = head;
     s->head = head;
 }

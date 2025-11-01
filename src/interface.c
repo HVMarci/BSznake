@@ -56,6 +56,14 @@ void erase_snake(Screen const *sc, Snake const *s) {
     }
 }
 
+int next_frame(Screen const *sc, Snake *s) {
+if (sc->type == TYPE_CLI) {
+        return cli_next_frame(sc, s);
+    } else {
+        return gui_next_frame(sc, s);
+    }
+}
+
 void free_screen(Screen *sc) {
     if (sc->type == TYPE_CLI) {
         cli_exit(sc);
