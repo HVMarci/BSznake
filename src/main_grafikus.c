@@ -41,7 +41,7 @@ void sdl_init(int szeles, int magas, SDL_Window **pwindow, SDL_Renderer **prende
  
 /* ez a fuggveny hivodik meg az idozito altal.
  * betesz a feldolgozando esemenyek koze (push) egy felhasznaloi esemenyt */
-Uint32 idozit(Uint32 ms, void *param) {
+Uint32 _idozit(Uint32 ms, void *param) {
     SDL_Event ev;
     if (param != NULL) {}
     ev.type = SDL_USEREVENT;
@@ -65,7 +65,7 @@ int main123(int argc, char *argv[]) {
     sdl_init(ABLAK, ABLAK, &window, &renderer);
  
     /* idozito hozzaadasa: 20 ms; 1000 ms / 20 ms -> 50 fps */
-    SDL_TimerID id = SDL_AddTimer(100, idozit, NULL);
+    SDL_TimerID id = SDL_AddTimer(100, _idozit, NULL);
  
     /* animaciohoz */
     Snake s;

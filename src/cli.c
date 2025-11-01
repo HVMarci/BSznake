@@ -123,7 +123,7 @@ int cli_next_frame(Screen const *sc, Snake *s) {
     econio_sleep(s->speed);
 
     // ha egy frame alatt több billentyű is le lett ütve, akkor az utolsó számítson
-    int key = 0;
+    int key = SNAKE_KEY_NONE;
     while (econio_kbhit()) {
         int k2 = econio_getch();
         if (k2 != 0) key = k2;

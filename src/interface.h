@@ -2,6 +2,7 @@
 #define _INTERFACE_H
 
 #include "snake.h"
+#include "SDL.h"
 
 #define TYPE_CLI 0
 #define TYPE_GUI 1
@@ -15,10 +16,13 @@
 
 typedef struct Screen {
     int w, h, type;
+    int block_size;
+    SDL_Window *window;
+    SDL_Renderer *renderer;
     void (*game_loop)(void);
 } Screen;
 
-Screen *init_screen(int w, int h, int type, void (*game_loop)(void));
+Screen *init_screen(int w, int h, int type, int block_size, void (*game_loop)(void));
 void draw_map(Screen const *sc);
 void draw_block(Screen const *sc, Block const *b);
 void draw_snake(Screen const *sc, Snake const *s);

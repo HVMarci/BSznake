@@ -15,7 +15,7 @@ void game_loop() {
 
 void start_game(int interface_type) {
     // TODO query window size - windows.h-ból?
-    Screen *sc = init_screen(35, 20, interface_type, game_loop);
+    Screen *sc = init_screen(35, 20, interface_type, 20, game_loop);
     Snake *s = new_snake(5, 10, 3, .1);
 
     draw_map(sc);
@@ -60,7 +60,7 @@ void start_game(int interface_type) {
 
 int main(int argc, char **argv) {
     // TODO a végén TYPE_GUI legyen!!
-    int interface_type = TYPE_CLI;
+    int interface_type = TYPE_GUI;
     if (argc > 1) {
         interface_type = stoi(argv[1], TYPE_CLI);
     }
