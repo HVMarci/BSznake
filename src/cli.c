@@ -8,9 +8,10 @@
     #include <windows.h>
 #endif // _WIN32
 
-// Vigyázzat, UTF-8, több bájtos karakterek!
+// Vigyázat, UTF-8, több bájtos karakterek!
 // printf("%s")-sel kiírhatóak!
-const char *TP_CH[] = {"═", "║", "╔", "╗", "╚", "╝", "o", "x"};
+char const * const TP_CH[] = { "═", "║", "╔", "╗", "╚", "╝", "o", "x", "O" };
+char const * const TP_CH_HEAD[] = { "Ʌ", ">", "V", "<" };
 //const char TP_CH_SIZE[] = {3, 3, 3, 3, 3, 3, 1, 1};
 //const char TP_CH_INDEX[] = {0, 3, 6, 9, 12, 15, 18, 19};
 
@@ -74,7 +75,11 @@ void cli_draw_block(Block const *b) {
         printf("%s%s", TP_CH[TP_VSZ], TP_CH[b->type]);
     } else {
         econio_gotoxy(b->x * 2 + 1, b->y + 1);
-        printf("%s", TP_CH[b->type]);
+        if (b->type != TP_HEAD) {
+            printf("%s", TP_CH[b->type]);
+        } else {
+            printf("%s", TP_CH_HEAD[b->dir]);
+        }
     }
     /*for (int i = 0; i < TP_CH_SIZE[b->type]; i++) {
         printf("%c", TP_CH[TP_CH_INDEX[b->type] + i]);

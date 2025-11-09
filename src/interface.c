@@ -51,6 +51,14 @@ void draw_snake(Screen const *sc, Snake const *s) {
     }
 }
 
+void erase_block(Screen const *sc, Block const *b) {
+    if (sc->type == TYPE_CLI) {
+        cli_erase_block(b);
+    } else {
+        gui_erase_block(sc, b);
+    }
+}
+
 void erase_snake(Screen const *sc, Snake const *s) {
     if (sc->type == TYPE_CLI) {
         cli_erase_snake(sc, s);

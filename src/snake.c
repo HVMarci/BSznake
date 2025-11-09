@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include "econio.h"
 #include "debugmalloc.h"
-#include "cli.h"
 
 void init_snake(Snake *s, int len, int x, int y, double speed) {
     s->len = len;
@@ -91,15 +90,52 @@ void move_snake(Snake *s, int dir) {
     //cli_draw_block(s->head);
     //cli_draw_block(head);
 
-    // TODO végét törölni
-    Block *oldtail = s->tail;
-    s->tail = s->tail->prev;
-    s->tail->type = TP_TAIL;
-    free(oldtail);
-    s->tail->next = NULL;
-
     head->next = s->head;
     s->head->dir = head->dir;
     s->head->prev = head;
     s->head = head;
 }
+
+// almák miatt különszedtem
+void shorten_snake(Snake *s) {
+    Block *oldtail = s->tail;
+    s->tail = s->tail->prev;
+    s->tail->type = TP_TAIL;
+    free(oldtail);
+    s->tail->next = NULL;
+}
+
+int check_snake(Screen const *sc, Snake const *s, Block const *apple) {
+    if (s->head->x < 0 || s->head->y < 0 || s->head->x >= sc->w || s->head->y >= sc->h) return COLL_WALL;
+
+    if (s->head->x == apple->x && s->head->y == apple->y) return COLL_APPLE;
+
+    for (Block const *ptr = s->head->next; ptr != s->tail; ptr = ptr->next) {
+        if (s->head->x == ptr->x && s->head->y == ptr->y) return COLL_SELF;
+    }
+
+    return COLL_NONE;
+}
+
+int cmp(const void *pa, const void *pb) {
+    int a = *(const int *) pa;
+    int b = *(const int *) pb;
+    if (a < b) return -1;
+    if (a == b) return 0;
+    return 1;
+}
+
+int exclude_snake(Screen const *sc, Snake const *s, int pos, int *posbuf) {
+    int bufi = 0;
+    for (Block const *ptr = s->head; ptr != NULL; ptr = ptr->next) {
+        posbuf[bufi++] = ptr->y * sc->w + ptr->x;
+    }
+
+    qsort(posbuf, s->len, sizeof(int), cmp);
+    for (int i = 0; i < s->len; i++) {
+        if (posbuf[i] <= pos) pos++;
+    }
+
+    return pos;
+}
+

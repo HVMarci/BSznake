@@ -1,11 +1,13 @@
 #include "helper.h"
+#include <stdlib.h>
+#include <time.h>
 
 #include "debugmalloc.h"
 
 int stoi(char const *str, int def) {
     int val = 0;
 
-    for (char *ptr = str; *ptr != '\0'; ptr++) {
+    for (char const *ptr = str; *ptr != '\0'; ptr++) {
         if (*ptr < '0' || *ptr > '9') return def; // invalid string
 
         val *= 10;
@@ -13,4 +15,13 @@ int stoi(char const *str, int def) {
     }
 
     return val;
+}
+
+// [min, max] inclusive
+int randint(int min, int max) {
+    double r = (double) rand() / (double) RAND_MAX;
+    int range = max - min + 1;
+    r = (r * range) + min;
+
+    return (int) r;
 }

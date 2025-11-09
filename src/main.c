@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include <stdbool.h>
 #include "econio.h"
 #include "snake.h"
@@ -13,13 +14,22 @@ void game_loop() {
     printf("meghivva");
 }
 
-void start_game(int interface_type) {
+void play_game(int interface_type) {
+    srand(time(NULL));
+
     // TODO query window size - windows.h-ból?
     Screen *sc = init_screen(35, 20, interface_type, 20, game_loop);
-    Snake *s = new_snake(5, 10, 3, .1);
-
+    Snake *s = new_snake(10, 10, 8, .1);
+    int *posbuf = malloc(sc->w * sc->h * sizeof(int));
+    Block *apple = malloc(sizeof(Block));
+    apple->x = 30;
+    apple->y = 8;
+    apple->type = TP_APPLE;
+    // a többi értéket nem használom
+    
     draw_map(sc);
     draw_snake(sc, s);
+    draw_block(sc, apple);
 
     bool exit = false;
 
@@ -48,12 +58,39 @@ void start_game(int interface_type) {
                 exit = true;
                 break;
         }
-
+    
         erase_snake(sc, s);
         move_snake(s, dir);
+
+        switch (check_snake(sc, s, apple)) {
+            case COLL_APPLE:
+                // replace apple
+                erase_block(sc, apple);
+
+                int newpos = exclude_snake(sc, s, randint(0, sc->w * sc->h - s->len - 1), posbuf);
+
+                apple->x = newpos % sc->w;
+                apple->y = newpos / sc->w;
+
+                draw_block(sc, apple);
+
+                break;
+            case COLL_SELF:
+                exit = true;
+                break;
+            case COLL_WALL:
+                exit = true;
+                break;
+            default:
+                shorten_snake(s);
+                break;
+        }
+
         draw_snake(sc, s);
     }
     
+    free(apple);
+    free(posbuf);
     free_snake(s);
     free_screen(sc);
 }
@@ -65,43 +102,7 @@ int main(int argc, char **argv) {
         interface_type = stoi(argv[1], TYPE_CLI);
     }
 
-    start_game(interface_type);
+    play_game(interface_type);
 
-    /*draw_map(sc);
-    draw_snake(sc, s);
-
-    move_snake(s, DIR_R);
-    draw_snake(sc, s);
-    move_snake(s, DIR_R);
-    draw_snake(sc, s);
-    move_snake(s, DIR_R);
-    draw_snake(sc, s);
-    move_snake(s, DIR_R);
-    draw_snake(sc, s);
-    move_snake(s, DIR_U);
-    draw_snake(sc, s);
-    move_snake(s, DIR_U);
-    draw_snake(sc, s);
-    move_snake(s, DIR_R);
-    draw_snake(sc, s);
-    move_snake(s, DIR_D);
-    draw_snake(sc, s);
-    move_snake(s, DIR_D);
-    draw_snake(sc, s);
-    move_snake(s, DIR_D);
-    draw_snake(sc, s);
-    move_snake(s, DIR_L);
-    draw_snake(sc, s);
-    move_snake(s, DIR_L);
-    draw_snake(sc, s);
-    move_snake(s, DIR_L);
-    draw_snake(sc, s);
-    move_snake(s, DIR_D);
-    draw_snake(sc, s);
-    move_snake(s, DIR_L);
-    draw_snake(sc, s);
-    move_snake(s, DIR_U);
-    draw_snake(sc, s);*/
-    
     return 0;
 }

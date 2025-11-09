@@ -46,7 +46,16 @@ void gui_draw_map(Screen const *sc) {
 }
 
 void gui_draw_block(Screen const *sc, Block const *b) {
-    filledCircleRGBA(sc->renderer, (b->x + 1) * sc->block_size + sc->block_size/2, (b->y + 1) * sc->block_size + sc->block_size/2, sc->block_size/2 - 1, 0xFF, 0x00, 0x00, 0xFF); // kell az R-1, különben túllóg a mezőn
+    Color col;
+    if (b->type == TP_APPLE) {
+        col.r = 0xFF;
+        col.g = col.b = 0x00;
+    } else {
+        col.r = 0x53;
+        col.g = 0x34;
+        col.b = 0x9F;
+    }
+    filledCircleRGBA(sc->renderer, (b->x + 1) * sc->block_size + sc->block_size/2, (b->y + 1) * sc->block_size + sc->block_size/2, sc->block_size/2 - 1, col.r, col.g, col.b, 0xFF); // kell az R-1, különben túllóg a mezőn
 }
 
 void gui_draw_snake(Screen const *sc, Snake const *s) {

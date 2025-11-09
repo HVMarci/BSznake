@@ -26,6 +26,7 @@ Screen *init_screen(int w, int h, int type, int block_size, void (*game_loop)(vo
 void draw_map(Screen const *sc);
 void draw_block(Screen const *sc, Block const *b);
 void draw_snake(Screen const *sc, Snake const *s);
+void erase_block(Screen const *sc, Block const *b);
 void erase_snake(Screen const *sc, Snake const *s);
 int next_frame(Screen const *sc, Snake *s);
 void free_screen(Screen *sc);
