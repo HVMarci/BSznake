@@ -31,8 +31,12 @@
 #define COLL_SELF 2
 #define COLL_WALL 3
 
-typedef struct Block {
+typedef struct Coord {
     int x, y;
+} Coord;
+
+typedef struct Block {
+    Coord pos;
     int type, dir; // kell?
     struct Block *next, *prev; // utóbbi kell?
 } Block;
@@ -55,8 +59,7 @@ void free_snake(Snake* s);
 void move_snake(Snake *s, int dir);
 void shorten_snake(Snake *s);
 
-#include "interface.h"
-int check_snake(Screen const *sc, Snake const *s, Block const *apple);
-int exclude_snake(Screen const *sc, Snake const *s, int pos, int *posbuf);
+int check_snake(Coord dim, Snake const *s, Block const *apple);
+int exclude_snake(Coord dim, Snake const *s, int pos, int *posbuf);
 
 #endif // _SNAKE_H

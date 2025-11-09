@@ -11,7 +11,7 @@ void gui_init(Screen *sc) {
         exit(1);
     }
 
-    SDL_Window *window = SDL_CreateWindow("BSznake", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, sc->block_size * (sc->w + 2), sc->block_size * (sc->h + 2), 0);
+    SDL_Window *window = SDL_CreateWindow("BSznake", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, sc->block_size * (sc->dim.x + 2), sc->block_size * (sc->dim.y + 2), 0);
     if (window == NULL) {
         SDL_Log("Nem hozhato letre az ablak: %s", SDL_GetError());
         exit(1);
@@ -30,15 +30,15 @@ void gui_init(Screen *sc) {
 void gui_draw_map(Screen const *sc) {
     SDL_Rect rect;
     rect.x = rect.y = 0;
-    rect.w = (sc->w + 2) * sc->block_size;
-    rect.h = (sc->h + 2) * sc->block_size;
+    rect.w = (sc->dim.x + 2) * sc->block_size;
+    rect.h = (sc->dim.y + 2) * sc->block_size;
 
     SDL_SetRenderDrawColor(sc->renderer, 0x00, 0xFF, 0x00, 0xFF);
     SDL_RenderFillRect(sc->renderer, &rect);
 
     rect.x = rect.y = sc->block_size;
-    rect.w = (sc->w) * sc->block_size;
-    rect.h = (sc->h) * sc->block_size;
+    rect.w = (sc->dim.x) * sc->block_size;
+    rect.h = (sc->dim.y) * sc->block_size;
     SDL_SetRenderDrawColor(sc->renderer, 0x00, 0x00, 0x00, 0xFF);
     SDL_RenderFillRect(sc->renderer, &rect);
 
@@ -55,7 +55,7 @@ void gui_draw_block(Screen const *sc, Block const *b) {
         col.g = 0x34;
         col.b = 0x9F;
     }
-    filledCircleRGBA(sc->renderer, (b->x + 1) * sc->block_size + sc->block_size/2, (b->y + 1) * sc->block_size + sc->block_size/2, sc->block_size/2 - 1, col.r, col.g, col.b, 0xFF); // kell az R-1, különben túllóg a mezőn
+    filledCircleRGBA(sc->renderer, (b->pos.x + 1) * sc->block_size + sc->block_size/2, (b->pos.y + 1) * sc->block_size + sc->block_size/2, sc->block_size/2 - 1, col.r, col.g, col.b, 0xFF); // kell az R-1, különben túllóg a mezőn
 }
 
 void gui_draw_snake(Screen const *sc, Snake const *s) {
@@ -66,7 +66,7 @@ void gui_draw_snake(Screen const *sc, Snake const *s) {
 }
 
 void gui_erase_block(Screen const *sc, Block const *b) {
-    filledCircleRGBA(sc->renderer, (b->x + 1) * sc->block_size + sc->block_size/2, (b->y + 1) * sc->block_size + sc->block_size/2, sc->block_size/2 - 1, 0x00, 0x00, 0x00, 0xFF); // kell az R-1, különben túllóg a mezőn
+    filledCircleRGBA(sc->renderer, (b->pos.x + 1) * sc->block_size + sc->block_size/2, (b->pos.y + 1) * sc->block_size + sc->block_size/2, sc->block_size/2 - 1, 0x00, 0x00, 0x00, 0xFF); // kell az R-1, különben túllóg a mezőn
 }
 
 void gui_erase_snake(Screen const *sc, Snake const *s) {

@@ -8,8 +8,8 @@ void init_snake(Snake *s, int len, int x, int y, double speed) {
     s->len = len;
     s->speed = speed;
     s->head = malloc(sizeof(Block));
-    s->head->x = x;
-    s->head->y = y;
+    s->head->pos.x = x;
+    s->head->pos.y = y;
     s->head->type = TP_HEAD;
     s->head->dir = DIR_R;
     s->head->next = NULL;
@@ -18,8 +18,8 @@ void init_snake(Snake *s, int len, int x, int y, double speed) {
     Block* cur = s->head;
     for (int i = 1; i < len; i++) {
         cur->next = malloc(sizeof(Block));
-        cur->next->x = x - i;
-        cur->next->y = y;
+        cur->next->pos.x = x - i;
+        cur->next->pos.y = y;
         cur->next->type = TP_VSZ;
         cur->next->dir = DIR_R;
         s->head->dir = DIR_R;
@@ -58,29 +58,29 @@ void move_snake(Snake *s, int dir) {
     head->prev = NULL;
 
     int d = s->head->dir;
-    head->x = s->head->x;
-    head->y = s->head->y;
+    head->pos.x = s->head->pos.x;
+    head->pos.y = s->head->pos.y;
     switch (dir) {
     case DIR_U:
-        head->y -= 1;
+        head->pos.y -= 1;
         if (d == DIR_R) s->head->type = TP_BF;
         else if (d == DIR_U) s->head->type = TP_FG;
         else if (d == DIR_L) s->head->type = TP_JF;
         break;
     case DIR_R:
-        head->x += 1;
+        head->pos.x += 1;
         if (d == DIR_D) s->head->type = TP_JF;
         else if (d == DIR_R) s->head->type = TP_VSZ;
         else if (d == DIR_U) s->head->type = TP_JA;
         break;
     case DIR_D:
-        head->y += 1;
+        head->pos.y += 1;
         if (d == DIR_L) s->head->type = TP_JA;
         else if (d == DIR_D) s->head->type = TP_FG;
         else if (d == DIR_R) s->head->type = TP_BA;
         break;
     case DIR_L:
-        head->x -= 1;
+        head->pos.x -= 1;
         if (d == DIR_U) s->head->type = TP_BA;
         else if (d == DIR_L) s->head->type = TP_VSZ;
         else if (d == DIR_D) s->head->type = TP_BF;
@@ -105,13 +105,13 @@ void shorten_snake(Snake *s) {
     s->tail->next = NULL;
 }
 
-int check_snake(Screen const *sc, Snake const *s, Block const *apple) {
-    if (s->head->x < 0 || s->head->y < 0 || s->head->x >= sc->w || s->head->y >= sc->h) return COLL_WALL;
+int check_snake(Coord dim, Snake const *s, Block const *apple) {
+    if (s->head->pos.x < 0 || s->head->pos.y < 0 || s->head->pos.x >= dim.x || s->head->pos.y >= dim.y) return COLL_WALL;
 
-    if (s->head->x == apple->x && s->head->y == apple->y) return COLL_APPLE;
+    if (s->head->pos.x == apple->pos.x && s->head->pos.y == apple->pos.y) return COLL_APPLE;
 
     for (Block const *ptr = s->head->next; ptr != s->tail; ptr = ptr->next) {
-        if (s->head->x == ptr->x && s->head->y == ptr->y) return COLL_SELF;
+        if (s->head->pos.x == ptr->pos.x && s->head->pos.y == ptr->pos.y) return COLL_SELF;
     }
 
     return COLL_NONE;
@@ -125,10 +125,10 @@ int cmp(const void *pa, const void *pb) {
     return 1;
 }
 
-int exclude_snake(Screen const *sc, Snake const *s, int pos, int *posbuf) {
+int exclude_snake(Coord dim, Snake const *s, int pos, int *posbuf) {
     int bufi = 0;
     for (Block const *ptr = s->head; ptr != NULL; ptr = ptr->next) {
-        posbuf[bufi++] = ptr->y * sc->w + ptr->x;
+        posbuf[bufi++] = ptr->pos.y * dim.x + ptr->pos.x;
     }
 
     qsort(posbuf, s->len, sizeof(int), cmp);

@@ -10,8 +10,8 @@ Screen *init_screen(int w, int h, int type, int block_size, void (*game_loop)(vo
 
     if (sc == NULL) return NULL;
 
-    sc->w = w;
-    sc->h = h;
+    sc->dim.x = w;
+    sc->dim.y = h;
     sc->type = type;
     sc->block_size = block_size;
     sc->window = NULL;

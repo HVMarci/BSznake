@@ -20,10 +20,10 @@ void play_game(int interface_type) {
     // TODO query window size - windows.h-ból?
     Screen *sc = init_screen(35, 20, interface_type, 20, game_loop);
     Snake *s = new_snake(10, 10, 8, .1);
-    int *posbuf = malloc(sc->w * sc->h * sizeof(int));
+    int *posbuf = malloc(sc->dim.x * sc->dim.y * sizeof(int));
     Block *apple = malloc(sizeof(Block));
-    apple->x = 30;
-    apple->y = 8;
+    apple->pos.x = 30;
+    apple->pos.y = 8;
     apple->type = TP_APPLE;
     // a többi értéket nem használom
     
@@ -62,15 +62,15 @@ void play_game(int interface_type) {
         erase_snake(sc, s);
         move_snake(s, dir);
 
-        switch (check_snake(sc, s, apple)) {
+        switch (check_snake(sc->dim, s, apple)) {
             case COLL_APPLE:
                 // replace apple
                 erase_block(sc, apple);
 
-                int newpos = exclude_snake(sc, s, randint(0, sc->w * sc->h - s->len - 1), posbuf);
+                int newpos = exclude_snake(sc->dim, s, randint(0, sc->dim.x * sc->dim.y - s->len - 1), posbuf);
 
-                apple->x = newpos % sc->w;
-                apple->y = newpos / sc->w;
+                apple->pos.x = newpos % sc->dim.x;
+                apple->pos.y = newpos / sc->dim.x;
 
                 draw_block(sc, apple);
 

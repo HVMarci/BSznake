@@ -8,6 +8,8 @@
     #include <windows.h>
 #endif // _WIN32
 
+// TODO külön függvény flush-ra
+
 // Vigyázat, UTF-8, több bájtos karakterek!
 // printf("%s")-sel kiírhatóak!
 char const * const TP_CH[] = { "═", "║", "╔", "╗", "╚", "╝", "o", "x", "O" };
@@ -42,24 +44,24 @@ void cli_draw_map(Screen const *sc) {
     econio_clrscr();
     econio_gotoxy(0, 0);
     printf("┌");
-    for (int i = 1; i <= sc->w * 2; i++) {
+    for (int i = 1; i <= sc->dim.x * 2; i++) {
         printf("─");
     }
     printf("┐");
-    for (int i = 1; i <= sc->h; i++) {
+    for (int i = 1; i <= sc->dim.y; i++) {
         econio_gotoxy(0, i);
         printf("│");
-        econio_gotoxy((sc->w*2) + 1, i);
+        econio_gotoxy((sc->dim.x*2) + 1, i);
         printf("│");
     }
-    econio_gotoxy(0, sc->h + 1);
+    econio_gotoxy(0, sc->dim.y + 1);
     printf("└");
-    for (int i = 1; i <= sc->w * 2; i++) {
+    for (int i = 1; i <= sc->dim.x * 2; i++) {
         printf("─");
     }
     printf("┘");
 
-    econio_gotoxy(0, sc->h + 2);
+    econio_gotoxy(0, sc->dim.y + 2);
     econio_flush();
 }
 
@@ -68,13 +70,13 @@ void cli_draw_map(Screen const *sc) {
 // minden ptlan x koordinátájú karakterben van kígyó, párosokban a filler vonalak
 void cli_draw_block(Block const *b) {
     if (b->dir == DIR_R && b->type != TP_HEAD) {
-        econio_gotoxy(b->x * 2 + 1, b->y + 1);
+        econio_gotoxy(b->pos.x * 2 + 1, b->pos.y + 1);
         printf("%s%s", TP_CH[b->type], TP_CH[TP_VSZ]);
     } else if (b->dir == DIR_L && b->type != TP_HEAD) {
-        econio_gotoxy(b->x * 2, b->y + 1);
+        econio_gotoxy(b->pos.x * 2, b->pos.y + 1);
         printf("%s%s", TP_CH[TP_VSZ], TP_CH[b->type]);
     } else {
-        econio_gotoxy(b->x * 2 + 1, b->y + 1);
+        econio_gotoxy(b->pos.x * 2 + 1, b->pos.y + 1);
         if (b->type != TP_HEAD) {
             printf("%s", TP_CH[b->type]);
         } else {
@@ -91,19 +93,19 @@ void cli_draw_snake(Screen const *sc, Snake const *s) {
     for (Block *ptr = s->head; ptr != NULL; ptr = ptr->next) {
         cli_draw_block(ptr);
     }
-    econio_gotoxy(0, sc->h + 2);
+    econio_gotoxy(0, sc->dim.y + 2);
     econio_flush();
 }
 
 void cli_erase_block(Block const *b) {
     if (b->dir == DIR_R && b->type != TP_HEAD) {
-        econio_gotoxy(b->x * 2 + 1, b->y + 1);
+        econio_gotoxy(b->pos.x * 2 + 1, b->pos.y + 1);
         printf("  ");
     } else if (b->dir == DIR_L && b->type != TP_HEAD) {
-        econio_gotoxy(b->x * 2, b->y + 1);
+        econio_gotoxy(b->pos.x * 2, b->pos.y + 1);
         printf("  ");
     } else {
-        econio_gotoxy(b->x * 2 + 1, b->y + 1);
+        econio_gotoxy(b->pos.x * 2 + 1, b->pos.y + 1);
         printf(" ");
     }
 }
@@ -112,7 +114,7 @@ void cli_erase_snake(Screen const *sc, Snake const *s) {
     for (Block *ptr = s->head; ptr != NULL; ptr = ptr->next) {
         cli_erase_block(ptr);
     }
-    econio_gotoxy(0, sc->h + 2);
+    econio_gotoxy(0, sc->dim.y + 2);
     econio_flush();
 }
 
@@ -158,7 +160,7 @@ int cli_next_frame(Screen const *sc, Snake *s) {
 }
 
 void cli_exit(Screen const *sc) {
-    econio_gotoxy(0, sc->h + 2);
+    econio_gotoxy(0, sc->dim.y + 2);
     econio_normalmode();
 
 #ifdef _WIN32

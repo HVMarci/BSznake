@@ -15,7 +15,8 @@
 #define SNAKE_KEY_LEFT 5
 
 typedef struct Screen {
-    int w, h, type;
+    Coord dim;
+    int type;
     int block_size;
     SDL_Window *window;
     SDL_Renderer *renderer;
