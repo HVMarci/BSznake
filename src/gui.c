@@ -2,6 +2,7 @@
 
 #include <SDL.h>
 #include <SDL2_gfxPrimitives.h>
+#include <SDL_TTF.h>
 
 #include "debugmalloc.h"
 
@@ -22,6 +23,17 @@ void gui_init(Screen *sc) {
         exit(1);
     }
     SDL_RenderClear(renderer);
+
+    if (TTF_Init() < 0) {
+        SDL_Log("Nem toltheto be a TTF engine: %s", SDL_GetError());
+        exit(1);
+    }
+
+    sc->font = TTF_OpenFont("arial.ttf", 32);
+    if (!sc->font) {
+        SDL_Log("Nem sikerult megnyitni a fontot! %s\n", TTF_GetError());
+        exit(1);
+    }
 
     sc->window = window;
     sc->renderer = renderer;
@@ -76,6 +88,57 @@ void gui_erase_snake(Screen const *sc, Snake const *s) {
     SDL_RenderPresent(sc->renderer);
 }
 
+void write_text(Screen const *sc, char *szoveg, int y) {
+    SDL_Color feher = { 255, 255, 255, 255 }, fekete = { 0, 0, 0, 255 };
+    SDL_Surface *felirat = TTF_RenderUTF8_Shaded(sc->font, szoveg, feher, fekete);
+    SDL_Texture *felirat_t = SDL_CreateTextureFromSurface(sc->renderer, felirat);
+    SDL_Rect hova = { ((sc->dim.x+2)*sc->block_size - felirat->w)/2, y, felirat->w, felirat->h };
+    SDL_RenderCopy(sc->renderer, felirat_t, NULL, &hova);
+    SDL_FreeSurface(felirat);
+    SDL_DestroyTexture(felirat_t);
+}
+
+void gui_draw_score(Screen const *sc, int score) {
+    static char szoveg[20+1];
+    sprintf_s(szoveg, 21, "Pontszám: %d", score);
+
+    write_text(sc, szoveg, 3*32);
+
+    SDL_RenderPresent(sc->renderer);
+}
+
+bool gui_ask_new_game(Screen const *sc) {
+    char *szoveg1 = "Szeretnél még egyet játszani?", *szoveg2 = "Enter: igen, Escape: nem"; // global
+    write_text(sc, szoveg2, 6*32);
+    write_text(sc, szoveg1, 5*32);
+    SDL_RenderPresent(sc->renderer);
+
+    bool done = false, ujat = false;
+    while (!done) {
+        SDL_Event event;
+        SDL_WaitEvent(&event);
+
+        switch (event.type) {
+            case SDL_KEYDOWN:
+                switch(event.key.keysym.sym) {
+                    case SDLK_RETURN:
+                    case SDLK_KP_ENTER:
+                        ujat = true, done = true;
+                        break;
+                    case SDLK_ESCAPE:
+                        ujat = false, done = true;
+                        break;
+                }
+                break;
+            case SDL_QUIT:
+                ujat = false, done = true;
+                break;
+        }
+    }
+
+    return ujat;
+}
+
 Uint32 idozit(Uint32 ms, void *param) {
     SDL_Event ev;
     if (param != NULL) {}
@@ -115,7 +178,9 @@ int gui_next_frame(Screen const *sc, Snake *s) {
 
     return key;
 }
+
 void gui_exit(Screen const *sc) {
+    TTF_CloseFont(sc->font);
     SDL_Quit();
 }
 //void gui_set_game_loop(void (*f)(void)) {}

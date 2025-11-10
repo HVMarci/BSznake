@@ -67,8 +67,24 @@ void erase_snake(Screen const *sc, Snake const *s) {
     }
 }
 
+void draw_score(Screen const *sc, int score) {
+    if (sc->type == TYPE_CLI) {
+        cli_draw_score(sc, score);
+    } else {
+        gui_draw_score(sc, score);
+    }
+}
+
+bool ask_new_game(Screen const *sc) {
+    if (sc->type == TYPE_CLI) {
+        return cli_ask_new_game(sc);
+    } else {
+        return gui_ask_new_game(sc);
+    }
+}
+
 int next_frame(Screen const *sc, Snake *s) {
-if (sc->type == TYPE_CLI) {
+    if (sc->type == TYPE_CLI) {
         return cli_next_frame(sc, s);
     } else {
         return gui_next_frame(sc, s);

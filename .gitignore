@@ -39,3 +39,7 @@ desktop.ini
 
 # Makefile, as it can be platform dependent
 Makefile
+
+# Doxygen files
+/docs/
+Doxyfile

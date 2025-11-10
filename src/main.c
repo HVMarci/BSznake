@@ -14,27 +14,23 @@ void game_loop() {
     printf("meghivva");
 }
 
-void play_game(int interface_type) {
-    srand(time(NULL));
-
-    // TODO query window size - windows.h-ból?
-    Screen *sc = init_screen(35, 20, interface_type, 20, game_loop);
-    Snake *s = new_snake(10, 10, 8, .1);
+int play_game(Screen *sc, int starting_score) {
+    Snake *s = new_snake(starting_score + 5, 10, 8, .1);
     int *posbuf = malloc(sc->dim.x * sc->dim.y * sizeof(int));
     Block *apple = malloc(sizeof(Block));
     apple->pos.x = 30;
     apple->pos.y = 8;
     apple->type = TP_APPLE;
-    // a többi értéket nem használom
+    // a többi apple->... értéket nem használom
     
     draw_map(sc);
     draw_snake(sc, s);
     draw_block(sc, apple);
 
-    bool exit = false;
+    bool end_game = false, exit = false;
 
-    while (!exit) {
-        //exit = next_frame();
+    while (!end_game) {
+        //end_game = next_frame();
         int key = next_frame(sc, s);
         int dir = s->head->dir;
         switch (key) {
@@ -55,6 +51,7 @@ void play_game(int interface_type) {
                     dir = DIR_L;
                 break;
             case SNAKE_KEY_ESCAPE:
+                end_game = true;
                 exit = true;
                 break;
         }
@@ -64,6 +61,7 @@ void play_game(int interface_type) {
 
         switch (check_snake(sc->dim, s, apple)) {
             case COLL_APPLE:
+                s->len++;
                 // replace apple
                 erase_block(sc, apple);
 
@@ -76,10 +74,10 @@ void play_game(int interface_type) {
 
                 break;
             case COLL_SELF:
-                exit = true;
+                end_game = true;
                 break;
             case COLL_WALL:
-                exit = true;
+                end_game = true;
                 break;
             default:
                 shorten_snake(s);
@@ -87,11 +85,45 @@ void play_game(int interface_type) {
         }
 
         draw_snake(sc, s);
+        // TODO - flush_screen(sc);
     }
     
+    int score = s->len - 5;
+
     free(apple);
     free(posbuf);
     free_snake(s);
+
+    return exit ? -1 : score;
+}
+
+void run_app(int interface_type) {
+    srand(time(NULL));
+
+    // TODO query window size - windows.h-ból?
+    Screen *sc = init_screen(35, 20, interface_type, 20, game_loop);
+
+    bool exit = false;
+    while (!exit) {
+        int score = play_game(sc, 0);
+
+        if (score == -1) break;
+
+        draw_score(sc, score);
+        /*char *name = ask_name();
+        Leaderboard *lb = open_leaderboard();
+        if (lb != NULL) {
+            if (name != NULL) {
+                add_score(lb, name, score);
+                save_leaderboard();
+            }
+            draw_leaderboard(sc, lb);
+            close_leaderboard(lb);
+        }*/
+
+        exit = !ask_new_game(sc);
+    }
+
     free_screen(sc);
 }
 
@@ -102,7 +134,7 @@ int main(int argc, char **argv) {
         interface_type = stoi(argv[1], TYPE_CLI);
     }
 
-    play_game(interface_type);
+    run_app(interface_type);
 
     return 0;
 }

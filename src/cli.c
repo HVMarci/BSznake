@@ -118,6 +118,25 @@ void cli_erase_snake(Screen const *sc, Snake const *s) {
     econio_flush();
 }
 
+void cli_draw_score(Screen const *sc, int score) {
+    printf("Pontszám: %d\n", score);
+}
+
+bool cli_ask_new_game(Screen const *sc) {
+    printf("Szeretnél még egyet játszani? (I/n) ");
+    char c;
+    econio_normalmode();
+#ifdef _WIN32
+    ShowConsoleCursor(true);
+#endif
+    scanf("%c", &c);
+#ifdef _WIN32
+    ShowConsoleCursor(false);
+#endif
+    econio_rawmode();
+    return c == 'I' || c == 'i' || c == '\n';
+}
+
 // 0: okay, 1: exit
 // TODO tisztázni, hogy ez mit csinál
 /* Itt kéne, hogy legyen a várakozás és a billentyűzet olvasás, majd az értékkel való visszatérés
