@@ -121,6 +121,7 @@ void run_app(int interface_type) {
             close_leaderboard(lb);
         }*/
 
+        // BUG néha újraindul kérdés nélkül konzolban, ha nekimegy az x-nek (farkának)
         exit = !ask_new_game(sc);
     }
 
