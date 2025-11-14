@@ -12,8 +12,8 @@
 
 // Vigyázat, UTF-8, több bájtos karakterek!
 // printf("%s")-sel kiírhatóak!
-char const * const TP_CH[] = { "═", "║", "╔", "╗", "╚", "╝", "o", "x", "O" };
-char const * const TP_CH_HEAD[] = { "Ʌ", ">", "V", "<" };
+char const * const TP_CH[] = { "\u2550", "\u2551", "\u2554", "\u2557", "\u255A", "\u255D", "o", "x", "O" };
+char const * const TP_CH_HEAD[] = { "\u0245", ">", "V", "<" };
 //const char TP_CH_SIZE[] = {3, 3, 3, 3, 3, 3, 1, 1};
 //const char TP_CH_INDEX[] = {0, 3, 6, 9, 12, 15, 18, 19};
 
@@ -119,10 +119,12 @@ void cli_erase_snake(Screen const *sc, Snake const *s) {
 }
 
 void cli_draw_score(Screen const *sc, int score) {
+    econio_gotoxy(0, sc->dim.y + 2); // TODO jó?
     printf("Pontszám: %d\n", score);
 }
 
 bool cli_ask_new_game(Screen const *sc) {
+    econio_gotoxy(0, sc->dim.y + 3);
     printf("Szeretnél még egyet játszani? (I/n) ");
     char c;
     econio_normalmode();
@@ -145,7 +147,7 @@ bool cli_ask_new_game(Screen const *sc) {
  * És kezdődne előröl az egész
  * return: key pressed -1 -> játék vége
  */
-int cli_next_frame(Screen const *sc, Snake *s) {
+int cli_next_frame(Snake *s) {
     econio_sleep(s->speed);
 
     // ha egy frame alatt több billentyű is le lett ütve, akkor az utolsó számítson

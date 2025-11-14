@@ -144,10 +144,10 @@ Uint32 idozit(Uint32 ms, void *param) {
     if (param != NULL) {}
     ev.type = SDL_USEREVENT;
     SDL_PushEvent(&ev);
-    return 0; // ne legyen automatikusan újraindítva
+    return 0&ms; // ne legyen automatikusan újraindítva + csalás, hogy ne legyen -Werror=unused-parameter
 }
 
-int gui_next_frame(Screen const *sc, Snake *s) {
+int gui_next_frame(Snake *s) {
     bool done = false;
     SDL_AddTimer(s->speed * 1000, idozit, NULL);
 

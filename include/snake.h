@@ -1,20 +1,24 @@
+/** @file snake.h
+ * @brief A kígyó objektumot kezelő struktúrák, függvények és értékek.
+ */
+
 #ifndef _SNAKE_H
 #define _SNAKE_H
 
 // blokk típusok - TODO enum
-// ═
+// vízszintes
 #define TP_VSZ 0
-// ║
+// függőleges
 #define TP_FG 1
-// ╔
+// jobb alsó
 #define TP_JA 2
-// ╗
+// bal alsó
 #define TP_BA 3
-// ╚
+// jobb felső
 #define TP_JF 4
-// ╝
+// bal felső
 #define TP_BF 5
-// o - TODO Ʌ>V<
+// kacsacsőrők
 #define TP_HEAD 6
 // x
 #define TP_TAIL 7
@@ -76,7 +80,8 @@ typedef struct Block {
 typedef struct Snake {
     int len; /**< A kígyó hossza */
     double speed; /**< A kígyó "sebessége" - hány mp telik el két képkocka között */
-    Block *head /**< A láncolt lista eleje */, *tail; /**< A láncolt lista vége */
+    Block *head; /**< A láncolt lista eleje */
+    Block *tail; /**< A láncolt lista vége */
 } Snake;
 
 /**

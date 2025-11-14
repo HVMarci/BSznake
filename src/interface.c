@@ -85,9 +85,9 @@ bool ask_new_game(Screen const *sc) {
 
 int next_frame(Screen const *sc, Snake *s) {
     if (sc->type == TYPE_CLI) {
-        return cli_next_frame(sc, s);
+        return cli_next_frame(s);
     } else {
-        return gui_next_frame(sc, s);
+        return gui_next_frame(s);
     }
 }
 

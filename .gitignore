@@ -43,3 +43,6 @@ Makefile
 # Doxygen files
 /docs/
 Doxyfile
+
+# Archives
+*.zip

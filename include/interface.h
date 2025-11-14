@@ -1,3 +1,9 @@
+/** @file interface.h
+ * @brief A megjelenítésért felelős kódok.
+ * 
+ * Eltakarja a különbségeket a CLI és GUI módok között.
+ */
+
 #ifndef _INTERFACE_H
 #define _INTERFACE_H
 
