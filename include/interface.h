@@ -8,6 +8,7 @@
 #define _INTERFACE_H
 
 #include "snake.h"
+#include "leaderboard.h"
 #include <stdbool.h>
 #include <SDL.h>
 #include <SDL_ttf.h>
@@ -114,7 +115,6 @@ void erase_block(Screen const *sc, Block const *b);
  */
 void erase_snake(Screen const *sc, Snake const *s);
 
-
 /**
  * @brief Kiírja a pontszámot.
  * 
@@ -122,6 +122,23 @@ void erase_snake(Screen const *sc, Snake const *s);
  * @param score A megszerzett pontszám
  */
 void draw_score(Screen const *sc, int score);
+
+/**
+ * @brief Megkérdezi a játékos nevét.
+ * 
+ * @param sc Az `init_screen`-től kapott mutató a Screen struct-ra
+ * @param name A nevet ide másolja be
+ * @param maxlen A név maximum ilyen hosszú lehet (0 nélkül)
+ */
+void ask_name(Screen const *sc, char *name, int maxlen);
+
+/**
+ * @brief Kiírja az 5 legjobb eredményt.
+ * 
+ * @param sc Az `init_screen`-től kapott mutató a Screen struct-ra
+ * @param lb A Leaderboard struct
+ */
+void draw_top5(Screen const *sc, Leaderboard const *lb);
 
 /**
  * @brief Megkérdezi a játékostól, hogy szeretne-e még egyet játszani.

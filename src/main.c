@@ -6,15 +6,17 @@
 #include "snake.h"
 #include "interface.h"
 #include "helper.h"
+#include "leaderboard.h"
 
 #include "debugmalloc.h"
 
-// lehet felesleges :)
+// lehet felesleges :) - sőt, biztos az
 void game_loop() {
     printf("meghivva");
 }
 
 int play_game(Screen *sc, int starting_score) {
+    // TODO legyen lassabb!
     Snake *s = new_snake(starting_score + 5, 10, 8, .1);
     int *posbuf = malloc(sc->dim.x * sc->dim.y * sizeof(int));
     Block *apple = malloc(sizeof(Block));
@@ -72,6 +74,9 @@ int play_game(Screen *sc, int starting_score) {
 
                 draw_block(sc, apple);
 
+                // legyen a kígyó gyorsabb
+                s->speed *= .98;
+
                 break;
             case COLL_SELF:
                 end_game = true;
@@ -110,16 +115,15 @@ void run_app(int interface_type) {
         if (score == -1) break;
 
         draw_score(sc, score);
-        /*char *name = ask_name();
-        Leaderboard *lb = open_leaderboard();
+        char name[30+1];
+        ask_name(sc, name, 30);
+        Leaderboard *lb = open_leaderboard("results.txt");
         if (lb != NULL) {
-            if (name != NULL) {
-                add_score(lb, name, score);
-                save_leaderboard();
-            }
-            draw_leaderboard(sc, lb);
+            add_score(lb, name, score);
+            save_leaderboard(lb);
+            draw_top5(sc, lb);
             close_leaderboard(lb);
-        }*/
+        }
 
         // BUG néha újraindul kérdés nélkül konzolban, ha nekimegy az x-nek (farkának)
         exit = !ask_new_game(sc);

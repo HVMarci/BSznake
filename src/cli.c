@@ -123,20 +123,44 @@ void cli_draw_score(Screen const *sc, int score) {
     printf("Pontszám: %d\n", score);
 }
 
-bool cli_ask_new_game(Screen const *sc) {
-    econio_gotoxy(0, sc->dim.y + 3);
-    printf("Szeretnél még egyet játszani? (I/n) ");
-    char c;
+void cli_ask_name(char *name, int maxlen) {
+    printf("Milyen néven mentsük el az eredményt? ");
     econio_normalmode();
 #ifdef _WIN32
     ShowConsoleCursor(true);
-#endif
-    scanf("%c", &c);
+#endif /* _WIN32 */
+    char format[5+1];
+    sprintf(format, " %%%ds", maxlen);
+    scanf(format, name);
 #ifdef _WIN32
     ShowConsoleCursor(false);
-#endif
+#endif /* _WIN32 */
     econio_rawmode();
-    return c == 'I' || c == 'i' || c == '\n';
+}
+
+void cli_draw_top5(Leaderboard const *lb) {
+    Result *mozgo = lb->results;
+    int i = 0;
+    while (mozgo != NULL && i < 5) {
+        printf("%d. %s: %d pont\n", i+1, mozgo->name, mozgo->score);
+        i++;
+        mozgo = mozgo->next;
+    }
+}
+
+bool cli_ask_new_game() {
+    printf("Szeretnél még egyet játszani? (I/N) ");
+    char c = 'n'; // ha nem lenne input
+    econio_normalmode();
+#ifdef _WIN32
+    ShowConsoleCursor(true);
+#endif /* _WIN32 */
+    scanf(" %c", &c);
+#ifdef _WIN32
+    ShowConsoleCursor(false);
+#endif /* _WIN32 */
+    econio_rawmode();
+    return c == 'I' || c == 'i';
 }
 
 // 0: okay, 1: exit
@@ -186,5 +210,5 @@ void cli_exit(Screen const *sc) {
 
 #ifdef _WIN32
     ShowConsoleCursor(true);
-#endif
+#endif /* _WIN32 */
 }

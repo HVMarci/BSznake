@@ -75,9 +75,28 @@ void draw_score(Screen const *sc, int score) {
     }
 }
 
+void ask_name(Screen const *sc, char *name, int maxlen) {
+    if (maxlen < 0) maxlen = 0;
+    if (maxlen > 50) maxlen = 50;
+    
+    if (sc->type == TYPE_CLI) {
+        cli_ask_name(name, maxlen);
+    } else {
+        gui_ask_name(sc, name, maxlen);
+    }
+}
+
+void draw_top5(Screen const *sc, Leaderboard const *lb) {
+    if (sc->type == TYPE_CLI) {
+        cli_draw_top5(lb);
+    } else {
+        gui_draw_top5(sc, lb);
+    }
+}
+
 bool ask_new_game(Screen const *sc) {
     if (sc->type == TYPE_CLI) {
-        return cli_ask_new_game(sc);
+        return cli_ask_new_game();
     } else {
         return gui_ask_new_game(sc);
     }

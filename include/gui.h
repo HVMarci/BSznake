@@ -11,9 +11,11 @@ void gui_draw_snake(Screen const *sc, Snake const *s);
 void gui_erase_block(Screen const *sc, Block const *b);
 void gui_erase_snake(Screen const *sc, Snake const *s);
 void gui_draw_score(Screen const *sc, int score);
+void gui_ask_name(Screen const *sc, char *name, int maxlen);
+void gui_draw_top5(Screen const *sc, Leaderboard const *lb);
 bool gui_ask_new_game(Screen const *sc);
 int gui_next_frame(Snake *s);
-void gui_exit(Screen const *sc);
+void gui_exit(Screen *sc);
 //void gui_set_game_loop(void (*f)(void));
 
 #endif
