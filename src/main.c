@@ -7,6 +7,7 @@
 #include "interface.h"
 #include "helper.h"
 #include "leaderboard.h"
+#include "bsz.h"
 
 #include "debugmalloc.h"
 
@@ -133,6 +134,10 @@ void run_app(int interface_type) {
 }
 
 int main(int argc, char **argv) {
+    /*printf("%d\n", (2324 % 232));
+    printf("%d\n", kongruencia(57, 99, 273));
+    return 0;*/
+
     // TODO a végén TYPE_GUI legyen!!
     int interface_type = TYPE_GUI;
     if (argc > 1) {
