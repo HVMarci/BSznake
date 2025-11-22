@@ -61,14 +61,11 @@ void gui_draw_map(Screen const *sc) {
 }
 
 void gui_draw_block(Screen const *sc, Block const *b) {
-    Color col;
-    if (b->type == TP_APPLE) {
-        col.r = 0xFF;
-        col.g = col.b = 0x00;
-    } else {
-        col.r = 0x53;
-        col.g = 0x34;
-        col.b = 0x9F;
+    Color col = b->col;
+    if (b->type == TP_HEAD) {
+        col.r = ~col.r;
+        col.g = ~col.g;
+        col.b = ~col.b;
     }
     filledCircleRGBA(sc->renderer, (b->pos.x + 1) * sc->block_size + sc->block_size/2, (b->pos.y + 1) * sc->block_size + sc->block_size/2, sc->block_size/2 - 1, col.r, col.g, col.b, 0xFF); // kell az R-1, különben túllóg a mezőn
 }
@@ -284,9 +281,9 @@ Uint32 idozit(Uint32 ms, void *param) {
     return 0&ms; // ne legyen automatikusan újraindítva + csalás, hogy ne legyen -Werror=unused-parameter
 }
 
-SNAKE_KEY gui_next_frame(Snake *s) {
+SNAKE_KEY gui_next_frame(double wait_time) {
     bool done = false;
-    SDL_AddTimer(s->speed * 1000, idozit, NULL);
+    SDL_AddTimer(wait_time * 1000, idozit, NULL);
 
     SNAKE_KEY key = SNAKE_KEY_NONE;
     while (!done) {
@@ -304,6 +301,18 @@ SNAKE_KEY gui_next_frame(Snake *s) {
                     case SDLK_DOWN: key = SNAKE_KEY_DOWN; break;
                     case SDLK_LEFT: key = SNAKE_KEY_LEFT; break;
                     case SDLK_ESCAPE: key = SNAKE_KEY_ESCAPE; break;
+                    case SDLK_w: key = SNAKE_KEY_W; break;
+                    case SDLK_a: key = SNAKE_KEY_A; break;
+                    case SDLK_s: key = SNAKE_KEY_S; break;
+                    case SDLK_d: key = SNAKE_KEY_D; break;
+                    case SDLK_i: key = SNAKE_KEY_I; break;
+                    case SDLK_j: key = SNAKE_KEY_J; break;
+                    case SDLK_k: key = SNAKE_KEY_K; break;
+                    case SDLK_l: key = SNAKE_KEY_L; break;
+                    case SDLK_t: key = SNAKE_KEY_T; break;
+                    case SDLK_f: key = SNAKE_KEY_F; break;
+                    case SDLK_g: key = SNAKE_KEY_G; break;
+                    case SDLK_h: key = SNAKE_KEY_H; break;
                 }
                 break;
             case SDL_QUIT:

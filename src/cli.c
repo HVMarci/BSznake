@@ -27,7 +27,7 @@ void ShowConsoleCursor(bool showFlag) {
     cursorInfo.bVisible = showFlag; // set the cursor visibility
     SetConsoleCursorInfo(out, &cursorInfo);
 }
-#endif
+#endif // _WIN32
 
 void cli_init() {
 #ifdef _WIN32
@@ -43,6 +43,7 @@ void cli_init() {
 void cli_draw_map(Screen const *sc) {
     econio_clrscr();
     econio_gotoxy(0, 0);
+    econio_textcolor(COL_WHITE);
     printf("┌");
     for (int i = 1; i <= sc->dim.x * 2; i++) {
         printf("─");
@@ -64,10 +65,9 @@ void cli_draw_map(Screen const *sc) {
     econio_gotoxy(0, sc->dim.y + 2);
 }
 
-// char* helyett char**-gal jobb lenne és printf("%s")-sel?
-// TODO a karaktereknek 2 szélesnek kéne lenniük, hogy vízszintesen is ugyanolyan gyors legyen a kígyó, mint függőlegesen
 // minden ptlan x koordinátájú karakterben van kígyó, párosokban a filler vonalak
 void cli_draw_block(Block const *b) {
+    econio_textcolor(b->col.cli_code);
     if (b->dir == DIR_R && b->type != TP_HEAD) {
         econio_gotoxy(b->pos.x * 2 + 1, b->pos.y + 1);
         printf("%s%s", TP_CH[b->type], TP_CH[TP_VSZ]);
@@ -120,26 +120,31 @@ void cli_flush_screen() {
 }
 
 void cli_draw_score(Screen const *sc, int score) {
+    econio_textcolor(COL_WHITE);
     econio_gotoxy(0, sc->dim.y + 2); // TODO jó?
     printf("Pontszám: %d\n", score);
 }
 
 void cli_ask_name(char *name, int maxlen) {
-    printf("Milyen néven mentsük el az eredményt? ");
+    econio_textcolor(COL_WHITE);
+    printf("Milyen néven mentsük el az eredményt? (x - ne mentsünk) ");
     econio_normalmode();
 #ifdef _WIN32
     ShowConsoleCursor(true);
-#endif /* _WIN32 */
+#endif // _WIN32
     char format[5+1];
     sprintf(format, " %%%ds", maxlen);
     scanf(format, name);
 #ifdef _WIN32
     ShowConsoleCursor(false);
-#endif /* _WIN32 */
+#endif // _WIN32
     econio_rawmode();
+
+    if (name[0] == 'x' && name[1] == '\0') name[0] = '\0';
 }
 
 void cli_draw_top5(Leaderboard const *lb) {
+    econio_textcolor(COL_WHITE);
     Result *mozgo = lb->results;
     int i = 0;
     while (mozgo != NULL && i < 5) {
@@ -150,16 +155,17 @@ void cli_draw_top5(Leaderboard const *lb) {
 }
 
 bool cli_ask_new_game() {
+    econio_textcolor(COL_WHITE);
     printf("Szeretnél még egyet játszani? (I/N) ");
     char c = 'n'; // ha nem lenne input
     econio_normalmode();
 #ifdef _WIN32
     ShowConsoleCursor(true);
-#endif /* _WIN32 */
+#endif // _WIN32
     scanf(" %c", &c);
 #ifdef _WIN32
     ShowConsoleCursor(false);
-#endif /* _WIN32 */
+#endif // _WIN32
     econio_rawmode();
     return c == 'I' || c == 'i';
 }
@@ -172,8 +178,8 @@ bool cli_ask_new_game() {
  * És kezdődne előröl az egész
  * return: key pressed -1 -> játék vége
  */
-SNAKE_KEY cli_next_frame(Snake *s) {
-    econio_sleep(s->speed);
+SNAKE_KEY cli_next_frame(double wait_time) {
+    econio_sleep(wait_time);
 
     // ha egy frame alatt több billentyű is le lett ütve, akkor az utolsó számítson
     int key = 0;
@@ -185,6 +191,8 @@ SNAKE_KEY cli_next_frame(Snake *s) {
 
     //DIR dir = s->head->dir;
     switch (key) {
+        case KEY_ESCAPE:
+            return SNAKE_KEY_ESCAPE;
         case KEY_UP:
             return SNAKE_KEY_UP;
         case KEY_RIGHT:
@@ -193,8 +201,30 @@ SNAKE_KEY cli_next_frame(Snake *s) {
             return SNAKE_KEY_DOWN;
         case KEY_LEFT:
             return SNAKE_KEY_LEFT;
-        case KEY_ESCAPE:
-            return SNAKE_KEY_ESCAPE;
+        case 'w':
+            return SNAKE_KEY_W;
+        case 'a':
+            return SNAKE_KEY_A;
+        case 's':
+            return SNAKE_KEY_S;
+        case 'd':
+            return SNAKE_KEY_D;
+        case 'i':
+            return SNAKE_KEY_I;
+        case 'j':
+            return SNAKE_KEY_J;
+        case 'k':
+            return SNAKE_KEY_K;
+        case 'l':
+            return SNAKE_KEY_L;
+        case 't':
+            return SNAKE_KEY_T;
+        case 'f':
+            return SNAKE_KEY_F;
+        case 'g':
+            return SNAKE_KEY_G;
+        case 'h':
+            return SNAKE_KEY_H;
     }
 
     /*erase_snake(sc, s);
@@ -205,11 +235,12 @@ SNAKE_KEY cli_next_frame(Snake *s) {
     return SNAKE_KEY_NONE;
 }
 
-void cli_exit(Screen const *sc) {
-    econio_gotoxy(0, sc->dim.y + 2);
+void cli_exit() {
+    econio_textcolor(COL_WHITE);
+    econio_clrscr();
+    econio_gotoxy(0, 0);
     econio_normalmode();
-
 #ifdef _WIN32
     ShowConsoleCursor(true);
-#endif /* _WIN32 */
+#endif // _WIN32
 }

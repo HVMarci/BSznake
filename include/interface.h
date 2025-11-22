@@ -40,7 +40,19 @@ typedef enum SNAKE_KEY {
     SNAKE_KEY_UP, /**< Fel nyíl */
     SNAKE_KEY_RIGHT, /**< Jobbra nyíl */
     SNAKE_KEY_DOWN, /**< Le nyíl */
-    SNAKE_KEY_LEFT /**< Balra nyíl */
+    SNAKE_KEY_LEFT, /**< Balra nyíl */
+    SNAKE_KEY_W = 'w', /**< W */
+    SNAKE_KEY_A = 'a', /**< A */
+    SNAKE_KEY_S = 's', /**< S */
+    SNAKE_KEY_D = 'd', /**< D */
+    SNAKE_KEY_I = 'i', /**< I */
+    SNAKE_KEY_J = 'j', /**< J */
+    SNAKE_KEY_K = 'k', /**< K */
+    SNAKE_KEY_L = 'l', /**< L */
+    SNAKE_KEY_T = 't', /**< T */
+    SNAKE_KEY_F = 'f', /**< F */
+    SNAKE_KEY_G = 'g', /**< G */
+    SNAKE_KEY_H = 'h' /**< H */
 } SNAKE_KEY;
 
 /**
@@ -167,11 +179,11 @@ bool ask_new_game(Screen const *sc);
  * Vár az s->speed által megadott másodpercet, és beolvassa az adott idő alatt utoljára lenyomott gombot a billentyűzetről.
  * 
  * @param sc Az `init_screen`-től kapott mutató a Screen struct-ra
- * @param s Mutató a kígyóra (s->speed miatt)
+ * @param wait_time Hány mp teljen el a következő képkocka előtt?
  * 
  * @return A leütött billentyű kódja, vagy SNAKE_KEY_NONE
  */
-SNAKE_KEY next_frame(Screen const *sc, Snake *s);
+SNAKE_KEY next_frame(Screen const *sc, double wait_time);
 
 /**
  * @brief Lezárja az `init_screen` által betöltött könyvtárakat és felszabadítja a Screen structot.
@@ -180,4 +192,4 @@ SNAKE_KEY next_frame(Screen const *sc, Snake *s);
  */
 void free_screen(Screen *sc);
 
-#endif
+#endif // _INTERFACE_H

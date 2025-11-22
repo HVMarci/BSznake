@@ -6,7 +6,7 @@
 #include "debugmalloc.h"
 
 Screen *init_screen(int w, int h, INTERFACE_TYPE type, int block_size) {
-    Screen *sc = malloc(sizeof(Screen));
+    Screen *sc = (Screen *) malloc(sizeof(Screen));
 
     if (sc == NULL) return NULL;
 
@@ -109,17 +109,17 @@ bool ask_new_game(Screen const *sc) {
     }
 }
 
-SNAKE_KEY next_frame(Screen const *sc, Snake *s) {
+SNAKE_KEY next_frame(Screen const *sc, double wait_time) {
     if (sc->type == TYPE_CLI) {
-        return cli_next_frame(s);
+        return cli_next_frame(wait_time);
     } else {
-        return gui_next_frame(s);
+        return gui_next_frame(wait_time);
     }
 }
 
 void free_screen(Screen *sc) {
     if (sc->type == TYPE_CLI) {
-        cli_exit(sc);
+        cli_exit();
     } else {
         gui_exit(sc);
     }

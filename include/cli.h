@@ -21,7 +21,7 @@ void cli_draw_score(Screen const *sc, int score);
 void cli_ask_name(char *name, int maxlen);
 void cli_draw_top5(Leaderboard const *lb);
 bool cli_ask_new_game();
-SNAKE_KEY cli_next_frame(Snake *s);
-void cli_exit(Screen const *sc);
+SNAKE_KEY cli_next_frame(double wait_time);
+void cli_exit();
 
-#endif
+#endif // _CLI_H

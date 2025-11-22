@@ -47,5 +47,5 @@ Doxyfile
 # Archives
 *.zip
 
-# Toplist
-results.txt
+# Toplists
+results*.txt

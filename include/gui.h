@@ -21,7 +21,7 @@ void gui_draw_score(Screen const *sc, int score);
 void gui_ask_name(Screen const *sc, char *name, int maxlen);
 void gui_draw_top5(Screen const *sc, Leaderboard const *lb);
 bool gui_ask_new_game(Screen const *sc);
-SNAKE_KEY gui_next_frame(Snake *s);
+SNAKE_KEY gui_next_frame(double wait_time);
 void gui_exit(Screen *sc);
 
-#endif
+#endif // _GUI_H

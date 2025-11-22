@@ -1,5 +1,7 @@
 #include "bsz.h"
 
+#include "debugmalloc.h"
+
 /**
  * @brief Megmondja `a` és `b` legnagyobb közös osztóját.
  * 
