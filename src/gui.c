@@ -58,8 +58,6 @@ void gui_draw_map(Screen const *sc) {
     rect.h = (sc->dim.y) * sc->block_size;
     SDL_SetRenderDrawColor(sc->renderer, 0x00, 0x00, 0x00, 0xFF);
     SDL_RenderFillRect(sc->renderer, &rect);
-
-    SDL_RenderPresent(sc->renderer);
 }
 
 void gui_draw_block(Screen const *sc, Block const *b) {
@@ -79,7 +77,6 @@ void gui_draw_snake(Screen const *sc, Snake const *s) {
     for (Block *ptr = s->head; ptr != NULL; ptr = ptr->next) {
         gui_draw_block(sc, ptr);
     }
-    SDL_RenderPresent(sc->renderer);
 }
 
 void gui_erase_block(Screen const *sc, Block const *b) {
@@ -90,6 +87,9 @@ void gui_erase_snake(Screen const *sc, Snake const *s) {
     for (Block *ptr = s->head; ptr != NULL; ptr = ptr->next) {
         gui_erase_block(sc, ptr);
     }
+}
+
+void gui_flush_screen(Screen const *sc) {
     SDL_RenderPresent(sc->renderer);
 }
 
@@ -107,8 +107,6 @@ void gui_draw_score(Screen const *sc, int score) {
     sprintf_s(szoveg, 21, "Pontszám: %d", score);
 
     write_text(sc, szurkes, szoveg, 3*32);
-
-    SDL_RenderPresent(sc->renderer);
 }
 
 /* Forrás: InfoC
@@ -123,7 +121,7 @@ bool input_text(char *dest, size_t hossz, SDL_Rect teglalap, SDL_Color hatter, S
     char composition[SDL_TEXTEDITINGEVENT_TEXT_SIZE];
     composition[0] = '\0';
     /* Ezt a kirajzolas kozben hasznaljuk */
-    char textandcomposition[hossz + SDL_TEXTEDITINGEVENT_TEXT_SIZE + 1];
+    char *textandcomposition = (char *) malloc((hossz + SDL_TEXTEDITINGEVENT_TEXT_SIZE + 1) * sizeof(char));
     /* Max hasznalhato szelesseg */
     int maxw = teglalap.w - 2;
     int maxh = teglalap.h - 2;
@@ -216,7 +214,8 @@ bool input_text(char *dest, size_t hossz, SDL_Rect teglalap, SDL_Color hatter, S
                 break;
         }
     }
- 
+    
+    free(textandcomposition);
     /* igaz jelzi a helyes beolvasast; = ha enter miatt allt meg a ciklus */
     SDL_StopTextInput();
     return enter;
@@ -285,11 +284,11 @@ Uint32 idozit(Uint32 ms, void *param) {
     return 0&ms; // ne legyen automatikusan újraindítva + csalás, hogy ne legyen -Werror=unused-parameter
 }
 
-int gui_next_frame(Snake *s) {
+SNAKE_KEY gui_next_frame(Snake *s) {
     bool done = false;
     SDL_AddTimer(s->speed * 1000, idozit, NULL);
 
-    int key = SNAKE_KEY_NONE;
+    SNAKE_KEY key = SNAKE_KEY_NONE;
     while (!done) {
         SDL_Event event;
         SDL_WaitEvent(&event);

@@ -13,41 +13,46 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
-#define TYPE_CLI 0
-#define TYPE_GUI 1
+/*#define TYPE_CLI 0
+#define TYPE_GUI 1*/
 
-/*typedef enum INTERFACE_TYPE {
-    TYPE_CLI,
-    TYPE_GUI
-} INTERFACE_TYPE;*/
+/**
+ * @brief A megjelenítés típusa.
+ */
+typedef enum INTERFACE_TYPE {
+    TYPE_CLI, /**< Konzolos megjelenítés */
+    TYPE_GUI /**< Grafikus megjelenítés */
+} INTERFACE_TYPE;
 
-#define SNAKE_KEY_NONE 0
+/*#define SNAKE_KEY_NONE 0
 #define SNAKE_KEY_ESCAPE 1
 #define SNAKE_KEY_UP 2
 #define SNAKE_KEY_RIGHT 3
 #define SNAKE_KEY_DOWN 4
-#define SNAKE_KEY_LEFT 5
+#define SNAKE_KEY_LEFT 5*/
 
-/*typedef enum SNAKE_KEY {
-    SNAKE_KEY_NONE,
-    SNAKE_KEY_ESCAPE,
-    SNAKE_KEY_UP,
-    SNAKE_KEY_RIGHT,
-    SNAKE_KEY_DOWN,
-    SNAKE_KEY_LEFT
-} SNAKE_KEY;*/
+/**
+ * @brief A lenyomott gomb értéke.
+ */
+typedef enum SNAKE_KEY {
+    SNAKE_KEY_NONE, /**< Semmi nem lett lenyomva */
+    SNAKE_KEY_ESCAPE, /**< Esc */
+    SNAKE_KEY_UP, /**< Fel nyíl */
+    SNAKE_KEY_RIGHT, /**< Jobbra nyíl */
+    SNAKE_KEY_DOWN, /**< Le nyíl */
+    SNAKE_KEY_LEFT /**< Balra nyíl */
+} SNAKE_KEY;
 
 /**
  * @brief A megjelenítés adatait tároló struct.
  */
 typedef struct Screen {
     Coord dim; /**< A pálya méretei, nem pixelben, hanem blokkszámban */
-    int type; /**< A megjelenítés típusa: grafikus vagy konzolos */
+    INTERFACE_TYPE type; /**< A megjelenítés típusa: grafikus vagy konzolos */
     int block_size; /**< Grafikus megjelenítés esetén hány pixel legyen egy blokk */
     SDL_Window *window; /**< Grafikus megjelenítéshez */
     SDL_Renderer *renderer; /**< Grafikus megjelenítéshez */
     TTF_Font *font; /**< Grafikus megjelenítéshez */
-    void (*game_loop)(void); /**< fölösleges - TODO kitörölni */
 } Screen;
 
 /**
@@ -63,7 +68,7 @@ typedef struct Screen {
  * 
  * @return Dinamikusan foglalt Screen struct, amivel a megjelenítő függvényeket kell hívni. Használat végén `free_screen`-nel fel kell szabadítani!
  */
-Screen *init_screen(int w, int h, int type, int block_size, void (*game_loop)(void));
+Screen *init_screen(int w, int h, INTERFACE_TYPE type, int block_size);
 
 /**
  * @brief Kirajzolja a pályát.
@@ -116,6 +121,13 @@ void erase_block(Screen const *sc, Block const *b);
 void erase_snake(Screen const *sc, Snake const *s);
 
 /**
+ * @brief A pufferekben tárolt adatokat kirajzolja a képernyőre.
+ * 
+ * @param sc Az `init_screen`-től kapott mutató a Screen struct-ra
+ */
+void flush_screen(Screen const *sc);
+
+/**
  * @brief Kiírja a pontszámot.
  * 
  * @param sc Az `init_screen`-től kapott mutató a Screen struct-ra
@@ -157,9 +169,9 @@ bool ask_new_game(Screen const *sc);
  * @param sc Az `init_screen`-től kapott mutató a Screen struct-ra
  * @param s Mutató a kígyóra (s->speed miatt)
  * 
- * @return A leütött billentyű kódja, vagy SNAKE_KEY_NONE (TODO enum)
+ * @return A leütött billentyű kódja, vagy SNAKE_KEY_NONE
  */
-int next_frame(Screen const *sc, Snake *s);
+SNAKE_KEY next_frame(Screen const *sc, Snake *s);
 
 /**
  * @brief Lezárja az `init_screen` által betöltött könyvtárakat és felszabadítja a Screen structot.

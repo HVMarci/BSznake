@@ -51,7 +51,7 @@ void free_snake(Snake *s) {
 }
 
 // TODO kígyó hossz min 5!!
-void move_snake(Snake *s, int dir) {
+void move_snake(Snake *s, DIR dir) {
     Block *head = malloc(sizeof(Block));
     head->dir = dir;
     head->type = TP_HEAD;

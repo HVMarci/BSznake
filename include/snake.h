@@ -5,9 +5,9 @@
 #ifndef _SNAKE_H
 #define _SNAKE_H
 
-// blokk típusok - TODO enum
+// blokk típusok
 // vízszintes
-#define TP_VSZ 0
+/*#define TP_VSZ 0
 // függőleges
 #define TP_FG 1
 // jobb alsó
@@ -23,33 +23,52 @@
 // x
 #define TP_TAIL 7
 // O
-#define TP_APPLE 8
+#define TP_APPLE 8*/
 
-/*typedef enum TP {
-    TP_VSZ,
-    TP_FG,
-    TP_JA,
-    TP_BA,
-    TP_JF,
-    TP_BF,
-    TP_HEAD,
-    TP_TAIL,
-    TP_APPLE
-} TP;*/
+/**
+ * @brief A blokk típusa.
+ */
+typedef enum TP {
+    TP_VSZ, /**< Vízszintes */
+    TP_FG, /**< Függőleges */
+    TP_JA, /**< Jobb alsó sarok */
+    TP_BA, /**< Bal alsó sarok */
+    TP_JF, /**< Jobb felső sarok */
+    TP_BF, /**< Bal felső sarok */
+    TP_HEAD, /**< Fej */
+    TP_TAIL, /**< Farok */
+    TP_APPLE /**< Alma */
+} TP;
 
-#define DIR_U 0
+/*#define DIR_U 0
 #define DIR_R 1
 #define DIR_D 2
-#define DIR_L 3
+#define DIR_L 3*/
 
-//typedef enum DIR { DIR_U, DIR_R, DIR_D, DIR_L } DIR;
+/**
+ * @brief A blokk iránya.
+ */
+typedef enum DIR {
+    DIR_U, /**< Fel */
+    DIR_R, /**< Jobbra */
+    DIR_D, /**< Le */
+    DIR_L /**< Balra */
+} DIR;
 
-#define COLL_NONE 0
+/*#define COLL_NONE 0
 #define COLL_APPLE 1
 #define COLL_SELF 2
-#define COLL_WALL 3
+#define COLL_WALL 3*/
 
-//typedef enum COLL { COLL_NONE, COLL_APPLE, COLL_SELF, COLL_WALL } COLL;
+/**
+ * @brief Ütközés típusa.
+ */
+typedef enum COLL {
+    COLL_NONE, /**< Semmivel */
+    COLL_APPLE, /**< Almával */
+    COLL_SELF, /**< Magával */
+    COLL_WALL /**< Fallal */
+} COLL;
 
 /**
  * @brief Koordinátapár.
@@ -67,8 +86,8 @@ typedef struct Coord {
  */
 typedef struct Block {
     Coord pos; /**< A blokk helyzete (0,0) a bal felső, (w,h) a jobb alsó sarok */
-    int type; /**< Konzolon milyen karakterként jelenjen meg? */
-    int dir; /**< Milyen irányban van a fej felé lévő következő blokk? (konzolos megjelenítés miatt) */
+    TP type; /**< Konzolon milyen karakterként jelenjen meg? */
+    DIR dir; /**< Milyen irányban van a fej felé lévő következő blokk? (konzolos megjelenítés miatt) */
     struct Block *next, *prev; /**< A duplán láncolt lista előző és következő eleme (TODO jó ez így, vagy két komment kell?) */
 } Block;
 
@@ -135,7 +154,7 @@ void free_snake(Snake* s);
  * @param s A Snake struct
  * @param dir A mozgás iránya
  */
-void move_snake(Snake *s, int dir);
+void move_snake(Snake *s, DIR dir);
 
 /**
  * @brief A kígyó farkának levágása

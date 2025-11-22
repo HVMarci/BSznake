@@ -11,11 +11,6 @@
 
 #include "debugmalloc.h"
 
-// lehet felesleges :) - sőt, biztos az
-void game_loop() {
-    printf("meghivva");
-}
-
 int play_game(Screen *sc, int starting_score) {
     // TODO legyen lassabb!
     Snake *s = new_snake(starting_score + 5, 10, 8, .1);
@@ -29,13 +24,14 @@ int play_game(Screen *sc, int starting_score) {
     draw_map(sc);
     draw_snake(sc, s);
     draw_block(sc, apple);
+    flush_screen(sc);
 
     bool end_game = false, exit = false;
 
     while (!end_game) {
         //end_game = next_frame();
-        int key = next_frame(sc, s);
-        int dir = s->head->dir;
+        SNAKE_KEY key = next_frame(sc, s);
+        DIR dir = s->head->dir;
         switch (key) {
             case SNAKE_KEY_UP:
                 if (s->head->dir != DIR_D) 
@@ -56,6 +52,8 @@ int play_game(Screen *sc, int starting_score) {
             case SNAKE_KEY_ESCAPE:
                 end_game = true;
                 exit = true;
+                break;
+            default:
                 break;
         }
     
@@ -91,7 +89,7 @@ int play_game(Screen *sc, int starting_score) {
         }
 
         draw_snake(sc, s);
-        // TODO - flush_screen(sc);
+        flush_screen(sc);
     }
     
     int score = s->len - 5;
@@ -107,7 +105,7 @@ void run_app(int interface_type) {
     srand(time(NULL));
 
     // TODO query window size - windows.h-ból?
-    Screen *sc = init_screen(35, 20, interface_type, 20, game_loop);
+    Screen *sc = init_screen(35, 20, interface_type, 20);
 
     bool exit = false;
     while (!exit) {
@@ -120,13 +118,16 @@ void run_app(int interface_type) {
         ask_name(sc, name, 30);
         Leaderboard *lb = open_leaderboard("results.txt");
         if (lb != NULL) {
-            add_score(lb, name, score);
-            save_leaderboard(lb);
+            if (name[0] != '\0') {
+                // üres nevet ne mentsünk (GUI esetén történhet ilyen)
+                add_score(lb, name, score);
+                save_leaderboard(lb);
+            }
             draw_top5(sc, lb);
             close_leaderboard(lb);
         }
 
-        // BUG néha újraindul kérdés nélkül konzolban, ha nekimegy az x-nek (farkának)
+        // BUG néha újraindul kérdés nélkül konzolban, ha nekimegy az x-nek (farkának) - szerintem már megjavult, input probléma lehetett
         exit = !ask_new_game(sc);
     }
 
@@ -138,7 +139,6 @@ int main(int argc, char **argv) {
     printf("%d\n", kongruencia(57, 99, 273));
     return 0;*/
 
-    // TODO a végén TYPE_GUI legyen!!
     int interface_type = TYPE_GUI;
     if (argc > 1) {
         interface_type = stoi(argv[1], TYPE_CLI);

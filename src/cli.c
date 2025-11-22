@@ -62,7 +62,6 @@ void cli_draw_map(Screen const *sc) {
     printf("┘");
 
     econio_gotoxy(0, sc->dim.y + 2);
-    econio_flush();
 }
 
 // char* helyett char**-gal jobb lenne és printf("%s")-sel?
@@ -94,7 +93,6 @@ void cli_draw_snake(Screen const *sc, Snake const *s) {
         cli_draw_block(ptr);
     }
     econio_gotoxy(0, sc->dim.y + 2);
-    econio_flush();
 }
 
 void cli_erase_block(Block const *b) {
@@ -115,6 +113,9 @@ void cli_erase_snake(Screen const *sc, Snake const *s) {
         cli_erase_block(ptr);
     }
     econio_gotoxy(0, sc->dim.y + 2);
+}
+
+void cli_flush_screen() {
     econio_flush();
 }
 
@@ -171,18 +172,18 @@ bool cli_ask_new_game() {
  * És kezdődne előröl az egész
  * return: key pressed -1 -> játék vége
  */
-int cli_next_frame(Snake *s) {
+SNAKE_KEY cli_next_frame(Snake *s) {
     econio_sleep(s->speed);
 
     // ha egy frame alatt több billentyű is le lett ütve, akkor az utolsó számítson
-    int key = SNAKE_KEY_NONE;
+    int key = 0;
     while (econio_kbhit()) {
         int k2 = econio_getch();
         if (k2 != 0) key = k2;
         // elvileg dobálhat random nullákat a beolvasás
     }
 
-    //int dir = s->head->dir;
+    //DIR dir = s->head->dir;
     switch (key) {
         case KEY_UP:
             return SNAKE_KEY_UP;
