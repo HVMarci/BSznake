@@ -109,11 +109,11 @@ bool ask_new_game(Screen const *sc) {
     }
 }
 
-SNAKE_KEY next_frame(Screen const *sc, double wait_time) {
+int next_frame(Screen const *sc, double wait_time, SNAKE_KEY *keybuf, int bufsize) {
     if (sc->type == TYPE_CLI) {
-        return cli_next_frame(wait_time);
+        return cli_next_frame(wait_time, keybuf, bufsize);
     } else {
-        return gui_next_frame(wait_time);
+        return gui_next_frame(wait_time, keybuf, bufsize);
     }
 }
 

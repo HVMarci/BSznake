@@ -37,6 +37,11 @@ int play_game(Screen *sc, int player_count, int starting_score) {
         snakes[i] = new_snake(starting_score + 5, init_snake_data[i].x, init_snake_data[i].y, init_snake_data[i].dir, init_snake_data[i].col);
     }
     int *posbuf = (int *) malloc((sc->dim.x * sc->dim.y + 1) * sizeof(int));
+    const int KEYBUF_SIZE = 32;
+    SNAKE_KEY *keybuf = (SNAKE_KEY *) malloc(KEYBUF_SIZE * sizeof(SNAKE_KEY));
+
+    int score = starting_score;
+
     Block *apple = (Block *) malloc(sizeof(Block));
     apple->pos.x = 30;
     apple->pos.y = 8;
@@ -49,25 +54,30 @@ int play_game(Screen *sc, int player_count, int starting_score) {
         draw_snake(sc, snakes[i]);
     }
     draw_block(sc, apple);
+    draw_score(sc, score);
     flush_screen(sc);
 
     bool end_game = false, exit = false;
 
     while (!end_game) {
-        //end_game = next_frame();
-        SNAKE_KEY key = next_frame(sc, game_speed);
+        int rc = next_frame(sc, game_speed, keybuf, KEYBUF_SIZE);
         for (int i = 0; i < player_count; i++) {
             Snake *s = snakes[i];
             if (!s->alive) continue;
 
             DIR dir = s->head->dir;
-            for (int j = 0; j < 4; j++) {
-                if (key == init_snake_data[i].keys[j] && dir != (j + 2u) % 4) dir = j;
+            for (int k = 0; k < rc; k++) {
+                SNAKE_KEY key = keybuf[k];
+                for (int j = 0; j < 4; j++) {
+                    if (key == init_snake_data[i].keys[j]) dir = j;
+                }
+                if (key == SNAKE_KEY_ESCAPE) {
+                    end_game = true;
+                    exit = true;
+                }
             }
-            if (key == SNAKE_KEY_ESCAPE) {
-                end_game = true;
-                exit = true;
-            }
+
+            if (dir == (s->head->dir + 2u) % 4) dir = s->head->dir;
         
             erase_snake(sc, s);
             move_snake(s, dir);
@@ -80,6 +90,8 @@ int play_game(Screen *sc, int player_count, int starting_score) {
                 erase_block(sc, apple);
                 apple->pos.x = apple->pos.y = -1;
                 
+                // minél többen élnek még, annál több pontot ér az alma
+                score += alive_count;
                 // legyen a játék gyorsabb
                 game_speed *= .98;
             } else {
@@ -89,6 +101,7 @@ int play_game(Screen *sc, int player_count, int starting_score) {
 
         //printf("MOVED\n");
 
+        draw_score(sc, score);
         fill_posbuf(sc->dim, snakes, player_count, posbuf);
         for (int i = 0; i < player_count; i++) {
             Snake *s = snakes[i];
@@ -121,12 +134,10 @@ int play_game(Screen *sc, int player_count, int starting_score) {
         flush_screen(sc);
     }
     
-    int score = snakes[0]->len - 5;
-    
     free(apple);
     free(posbuf);
+    free(keybuf);
     for (int i = 0; i < player_count; i++) {
-        if (snakes[i]->len - 5 > score) score = snakes[i]->len - 5;
         free_snake(snakes[i]);
     }
     free(snakes);

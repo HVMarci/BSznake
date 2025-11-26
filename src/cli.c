@@ -170,69 +170,75 @@ bool cli_ask_new_game() {
     return c == 'I' || c == 'i';
 }
 
-// 0: okay, 1: exit
-// TODO tisztázni, hogy ez mit csinál
-/* Itt kéne, hogy legyen a várakozás és a billentyűzet olvasás, majd az értékkel való visszatérés
- * A main-ben kéne a többi dolgot lekezelni
- * Aztán a main-nek megint meg kéne hívnia a rajzoló függvényeket
- * És kezdődne előröl az egész
- * return: key pressed -1 -> játék vége
- */
-SNAKE_KEY cli_next_frame(double wait_time) {
+int cli_next_frame(double wait_time, SNAKE_KEY *keybuf, int bufsize) {
     econio_sleep(wait_time);
 
-    // ha egy frame alatt több billentyű is le lett ütve, akkor az utolsó számítson
-    int key = 0;
+    int eddig = 0;
     while (econio_kbhit()) {
         int k2 = econio_getch();
-        if (k2 != 0) key = k2;
         // elvileg dobálhat random nullákat a beolvasás
+        if (k2 != 0) {
+            SNAKE_KEY key = SNAKE_KEY_NONE;
+            switch (k2) {
+                case KEY_ESCAPE:
+                    key = SNAKE_KEY_ESCAPE;
+                    break;
+                case KEY_UP:
+                    key = SNAKE_KEY_UP;
+                    break;
+                case KEY_RIGHT:
+                    key = SNAKE_KEY_RIGHT;
+                    break;
+                case KEY_DOWN:
+                    key = SNAKE_KEY_DOWN;
+                    break;
+                case KEY_LEFT:
+                    key = SNAKE_KEY_LEFT;
+                    break;
+                case 'w':
+                    key = SNAKE_KEY_W;
+                    break;
+                case 'a':
+                    key = SNAKE_KEY_A;
+                    break;
+                case 's':
+                    key = SNAKE_KEY_S;
+                    break;
+                case 'd':
+                    key = SNAKE_KEY_D;
+                    break;
+                case 'i':
+                    key = SNAKE_KEY_I;
+                    break;
+                case 'j':
+                    key = SNAKE_KEY_J;
+                    break;
+                case 'k':
+                    key = SNAKE_KEY_K;
+                    break;
+                case 'l':
+                    key = SNAKE_KEY_L;
+                    break;
+                case 't':
+                    key = SNAKE_KEY_T;
+                    break;
+                case 'f':
+                    key = SNAKE_KEY_F;
+                    break;
+                case 'g':
+                    key = SNAKE_KEY_G;
+                    break;
+                case 'h':
+                    key = SNAKE_KEY_H;
+                    break;
+            }
+            if (key != SNAKE_KEY_NONE && eddig < bufsize) {
+                keybuf[eddig++] = key;
+            }
+        }
     }
 
-    //DIR dir = s->head->dir;
-    switch (key) {
-        case KEY_ESCAPE:
-            return SNAKE_KEY_ESCAPE;
-        case KEY_UP:
-            return SNAKE_KEY_UP;
-        case KEY_RIGHT:
-            return SNAKE_KEY_RIGHT;
-        case KEY_DOWN:
-            return SNAKE_KEY_DOWN;
-        case KEY_LEFT:
-            return SNAKE_KEY_LEFT;
-        case 'w':
-            return SNAKE_KEY_W;
-        case 'a':
-            return SNAKE_KEY_A;
-        case 's':
-            return SNAKE_KEY_S;
-        case 'd':
-            return SNAKE_KEY_D;
-        case 'i':
-            return SNAKE_KEY_I;
-        case 'j':
-            return SNAKE_KEY_J;
-        case 'k':
-            return SNAKE_KEY_K;
-        case 'l':
-            return SNAKE_KEY_L;
-        case 't':
-            return SNAKE_KEY_T;
-        case 'f':
-            return SNAKE_KEY_F;
-        case 'g':
-            return SNAKE_KEY_G;
-        case 'h':
-            return SNAKE_KEY_H;
-    }
-
-    /*erase_snake(sc, s);
-    move_snake(s, dir);
-    draw_snake(sc, s);
-    econio_flush();*/
-
-    return SNAKE_KEY_NONE;
+    return eddig;
 }
 
 void cli_exit() {

@@ -281,11 +281,11 @@ Uint32 idozit(Uint32 ms, void *param) {
     return 0&ms; // ne legyen automatikusan újraindítva + csalás, hogy ne legyen -Werror=unused-parameter
 }
 
-SNAKE_KEY gui_next_frame(double wait_time) {
+int gui_next_frame(double wait_time, SNAKE_KEY *keybuf, int bufsize) {
     bool done = false;
     SDL_AddTimer(wait_time * 1000, idozit, NULL);
 
-    SNAKE_KEY key = SNAKE_KEY_NONE;
+    int eddig = 0;
     while (!done) {
         SDL_Event event;
         SDL_WaitEvent(&event);
@@ -294,7 +294,8 @@ SNAKE_KEY gui_next_frame(double wait_time) {
             case SDL_USEREVENT:
                 done = true;
                 break;
-            case SDL_KEYDOWN:
+            case SDL_KEYDOWN: {
+                SNAKE_KEY key = SNAKE_KEY_NONE;
                 switch(event.key.keysym.sym) {
                     case SDLK_UP: key = SNAKE_KEY_UP; break;
                     case SDLK_RIGHT: key = SNAKE_KEY_RIGHT; break;
@@ -314,15 +315,21 @@ SNAKE_KEY gui_next_frame(double wait_time) {
                     case SDLK_g: key = SNAKE_KEY_G; break;
                     case SDLK_h: key = SNAKE_KEY_H; break;
                 }
+                if (key != SNAKE_KEY_NONE && eddig < bufsize) {
+                    keybuf[eddig++] = key;
+                }
                 break;
-            case SDL_QUIT:
-                key = SNAKE_KEY_ESCAPE;
+            }
+            case SDL_QUIT: {
+                keybuf[0] = SNAKE_KEY_ESCAPE;
+                eddig = 1;
                 done = true;
                 break;
+            }
         }
     }
 
-    return key;
+    return eddig;
 }
 
 void gui_exit(Screen *sc) {

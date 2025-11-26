@@ -13,9 +13,6 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
-/*#define TYPE_CLI 0
-#define TYPE_GUI 1*/
-
 /**
  * @brief A megjelenítés típusa.
  */
@@ -23,13 +20,6 @@ typedef enum INTERFACE_TYPE {
     TYPE_CLI, /**< Konzolos megjelenítés */
     TYPE_GUI /**< Grafikus megjelenítés */
 } INTERFACE_TYPE;
-
-/*#define SNAKE_KEY_NONE 0
-#define SNAKE_KEY_ESCAPE 1
-#define SNAKE_KEY_UP 2
-#define SNAKE_KEY_RIGHT 3
-#define SNAKE_KEY_DOWN 4
-#define SNAKE_KEY_LEFT 5*/
 
 /**
  * @brief A lenyomott gomb értéke.
@@ -176,14 +166,16 @@ bool ask_new_game(Screen const *sc);
 /**
  * @brief A következő képkocka kezelése.
  * 
- * Vár az s->speed által megadott másodpercet, és beolvassa az adott idő alatt utoljára lenyomott gombot a billentyűzetről.
+ * Vár az s->speed által megadott másodpercet, és beolvassa az adott idő alatt lenyomott gombokat a billentyűzetről. Az első `bufsize` darabot eltárolja `keybuf`-ban.
  * 
  * @param sc Az `init_screen`-től kapott mutató a Screen struct-ra
  * @param wait_time Hány mp teljen el a következő képkocka előtt?
+ * @param keybuf Egy puffer, amiben a függvény eltárolhatja a lenyomott billentyűket
+ * @param bufsize A puffer mérete - ennél több billentyűlenyomást nem tárol el a függvény
  * 
- * @return A leütött billentyű kódja, vagy SNAKE_KEY_NONE
+ * @return A beolvasott billentyűk száma
  */
-SNAKE_KEY next_frame(Screen const *sc, double wait_time);
+int next_frame(Screen const *sc, double wait_time, SNAKE_KEY *keybuf, int bufsize);
 
 /**
  * @brief Lezárja az `init_screen` által betöltött könyvtárakat és felszabadítja a Screen structot.
