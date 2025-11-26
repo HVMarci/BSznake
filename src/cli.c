@@ -1,6 +1,5 @@
 #include "cli.h"
 
-#include "snake.h"
 #include "debugmalloc.h"
 #include "econio.h"
 
@@ -239,6 +238,34 @@ int cli_next_frame(double wait_time, SNAKE_KEY *keybuf, int bufsize) {
     }
 
     return eddig;
+}
+
+int cli_draw_bsz_feladat(BSzFeladat feladat) {
+    switch (feladat.type) {
+        case LNKO:
+            printf("Határozd meg %d és %d legnagyobb osztóját! ", feladat.a, feladat.b);
+            break;
+        case KONGRUENCIA:
+            printf("Határozd meg a következő kongruencia legkisebb pozitív megoldását:\n%dx === %d (mod %d)\n", feladat.a, feladat.b, feladat.c);
+            printf("(Ha nincs megoldás, legyen -1 a válasz!) ");
+            break;
+        case PRIME:
+            printf("Prím a következő szám: %d?\n(Igen - 1, Nem - 0) ", feladat.a);
+            break;
+        case DETERMINANS:
+            printf("Határozd meg a következő mátrix determinánsát!\n");
+            for (int i = 0; i < feladat.a; i++) {
+                for (int j = 0; j < feladat.a; j++) {
+                    printf("%d ", feladat.mx[i][j]);
+                }
+                printf("\n");
+            }
+            break;
+    }
+    
+    int ans;
+    scanf("%d", &ans);
+    return ans;
 }
 
 void cli_exit() {

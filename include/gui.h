@@ -9,6 +9,7 @@
 
 #include "snake.h"
 #include "interface.h"
+#include "bsz.h"
 
 void gui_init(Screen *sc);
 void gui_draw_map(Screen const *sc);
@@ -22,6 +23,7 @@ void gui_ask_name(Screen const *sc, char *name, int maxlen);
 void gui_draw_top5(Screen const *sc, Leaderboard const *lb);
 bool gui_ask_new_game(Screen const *sc);
 int gui_next_frame(double wait_time, SNAKE_KEY *keybuf, int bufsize);
+int gui_draw_bsz_feladat(Screen const *sc, BSzFeladat feladat);
 void gui_exit(Screen *sc);
 
 #endif // _GUI_H

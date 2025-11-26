@@ -1,20 +1,26 @@
 #include "helper.h"
 #include <stdlib.h>
 #include <time.h>
+#include <stdbool.h>
 
 #include "debugmalloc.h"
 
 int stoi(char const *str, int def) {
     int val = 0;
+    bool neg = false;
 
-    for (char const *ptr = str; *ptr != '\0'; ptr++) {
+    if (str[0] == '-') {
+        neg = true;
+    }
+
+    for (char const *ptr = neg ? str+1 : str; *ptr != '\0'; ptr++) {
         if (*ptr < '0' || *ptr > '9') return def; // invalid string
 
         val *= 10;
         val += *ptr - '0';
     }
 
-    return val;
+    return neg ? -val : val;
 }
 
 // [min, max] inclusive

@@ -117,6 +117,14 @@ int next_frame(Screen const *sc, double wait_time, SNAKE_KEY *keybuf, int bufsiz
     }
 }
 
+int draw_bsz_feladat(Screen const *sc, BSzFeladat feladat) {
+    if (sc->type == TYPE_CLI) {
+        return cli_draw_bsz_feladat(feladat);
+    } else {
+        return gui_draw_bsz_feladat(sc, feladat);
+    }
+}
+
 void free_screen(Screen *sc) {
     if (sc->type == TYPE_CLI) {
         cli_exit();

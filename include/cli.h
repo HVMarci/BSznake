@@ -9,6 +9,7 @@
 
 #include "snake.h"
 #include "interface.h"
+#include "bsz.h"
 
 void cli_init();
 void cli_draw_map(Screen const *sc);
@@ -22,6 +23,7 @@ void cli_ask_name(char *name, int maxlen);
 void cli_draw_top5(Leaderboard const *lb);
 bool cli_ask_new_game();
 int cli_next_frame(double wait_time, SNAKE_KEY *keybuf, int bufsize);
+int cli_draw_bsz_feladat(BSzFeladat feladat);
 void cli_exit();
 
 #endif // _CLI_H

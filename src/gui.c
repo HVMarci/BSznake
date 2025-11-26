@@ -4,6 +4,8 @@
 #include <SDL2_gfxPrimitives.h>
 #include <SDL_TTF.h>
 
+#include "helper.h"
+
 #include "debugmalloc.h"
 
 SDL_Color const feher = { 0xFF, 0xFF, 0xFF, 0xFF };
@@ -113,7 +115,7 @@ void gui_draw_score(Screen const *sc, int score) {
  * A masodik a maximális hossz, ami beolvasható.
  * A visszateresi erteke logikai igaz, ha sikerult a beolvasas.
  */
-bool input_text(char *dest, size_t hossz, SDL_Rect teglalap, SDL_Color hatter, SDL_Color szoveg, TTF_Font *font, SDL_Renderer *renderer) {
+bool input_text(char *dest, size_t hossz, SDL_Rect teglalap, SDL_Color hatter, SDL_Color szoveg, TTF_Font *font, SDL_Renderer *renderer, bool szam) {
     /* Ez tartalmazza az aktualis szerkesztest */
     char composition[SDL_TEXTEDITINGEVENT_TEXT_SIZE];
     composition[0] = '\0';
@@ -189,14 +191,22 @@ bool input_text(char *dest, size_t hossz, SDL_Rect teglalap, SDL_Color hatter, S
                 break;
  
             /* A feldolgozott szoveg bemenete */
-            case SDL_TEXTINPUT:
-                if (strlen(dest) + strlen(event.text.text) <= hossz) {
-                    strcat(dest, event.text.text);
+            case SDL_TEXTINPUT: {
+                unsigned int dest_hossz = strlen(dest), event_hossz = strlen(event.text.text);
+                unsigned int di = dest_hossz;
+                if (dest_hossz + event_hossz <= hossz) {
+                    for (unsigned int i = 0; i < event_hossz; i++) {
+                        if (!szam || (event.text.text[i] == '-' || (event.text.text[i] >= '0' && event.text.text[i] <= '9'))) {
+                            dest[di++] = event.text.text[i];
+                        }
+                    }
+                    dest[di] = '\0';
                 }
  
                 /* Az eddigi szerkesztes torolheto */
                 composition[0] = '\0';
                 break;
+            }
  
             /* Szoveg szerkesztese */
             case SDL_TEXTEDITING:
@@ -225,7 +235,7 @@ void gui_ask_name(Screen const *sc, char *name, int maxlen) {
 
     SDL_Rect teglalap = { (sc->dim.x+2)*sc->block_size / 6, 5*35, (sc->dim.x+2)*sc->block_size * 2 / 3, 32 };
     SDL_Color hatter = { 0x11, 0x11, 0x11, 0xDD };
-    input_text(name, maxlen, teglalap, hatter, feher, sc->font, sc->renderer);
+    input_text(name, maxlen, teglalap, hatter, feher, sc->font, sc->renderer, false);
 }
 
 void gui_draw_top5(Screen const *sc, Leaderboard const *lb) {
@@ -330,6 +340,54 @@ int gui_next_frame(double wait_time, SNAKE_KEY *keybuf, int bufsize) {
     }
 
     return eddig;
+}
+
+int gui_draw_bsz_feladat(Screen const *sc, BSzFeladat feladat) {
+    static char text[128];
+    static char szamtext[16];
+    switch (feladat.type) {
+        case LNKO: {
+            sprintf(text, "Határozd meg %d és %d legnagyobb osztóját!", feladat.a, feladat.b);
+            write_text(sc, fekete, text, 4*35);
+            break;
+        }
+        case KONGRUENCIA: {
+            sprintf(text, "Mi a legkisebb pozitív megoldása?");
+            write_text(sc, fekete, text, 4*35);
+            sprintf(text, "%dx === %d (mod %d)", feladat.a, feladat.b, feladat.c);
+            write_text(sc, fekete, text, 5*35);
+            sprintf(text, "(Ha nincs megoldás, legyen -1 a válasz!)");
+            write_text(sc, fekete, text, 6*35);
+            break;
+        }
+        case PRIME: {
+            sprintf(text, "Prím a következő szám: %d?", feladat.a);
+            write_text(sc, fekete, text, 4*35);
+            sprintf(text, "(Igen - 1, Nem - 0)");
+            write_text(sc, fekete, text, 5*35);
+            break;
+        }
+        case DETERMINANS: {
+            sprintf(text, "Határozd meg a következő mátrix determinánsát!\n");
+            write_text(sc, fekete, text, 4*35);
+            for (int i = 0; i < feladat.a; i++) {
+                text[0] = '\0';
+                for (int j = 0; j < feladat.a; j++) {
+                    sprintf(szamtext, "%d", feladat.mx[i][j]);
+                    strcat(text, szamtext);
+                }
+                write_text(sc, fekete, text, (5 + i) * 35);
+            }
+            break;
+        }
+    }
+
+    char ansstr[32];
+    SDL_Rect teglalap = { (sc->dim.x+2)*sc->block_size / 6, 2*35, (sc->dim.x+2)*sc->block_size * 2 / 3, 32 };
+    SDL_Color hatter = { 0x11, 0x11, 0x11, 0xDD };
+    input_text(ansstr, 32, teglalap, hatter, feher, sc->font, sc->renderer, true);
+
+    return stoi(ansstr, 0);
 }
 
 void gui_exit(Screen *sc) {

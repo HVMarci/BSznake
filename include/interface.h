@@ -9,6 +9,7 @@
 
 #include "snake.h"
 #include "leaderboard.h"
+#include "bsz.h"
 #include <stdbool.h>
 #include <SDL.h>
 #include <SDL_ttf.h>
@@ -176,6 +177,9 @@ bool ask_new_game(Screen const *sc);
  * @return A beolvasott billentyűk száma
  */
 int next_frame(Screen const *sc, double wait_time, SNAKE_KEY *keybuf, int bufsize);
+
+// TODO doksi
+int draw_bsz_feladat(Screen const *sc, BSzFeladat feladat);
 
 /**
  * @brief Lezárja az `init_screen` által betöltött könyvtárakat és felszabadítja a Screen structot.

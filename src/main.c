@@ -153,8 +153,21 @@ void run_app(INTERFACE_TYPE interface_type, int player_count) {
     char results_filename[16];
     sprintf(results_filename, "results%dp.txt", player_count);
 
-    bool exit = false;
+    bool exit = false, firstgame = true;
     while (!exit) {
+        if (!firstgame) {
+            BSzFeladat feladat;
+            feladat.type = DETERMINANS;
+            feladat.a = 3, feladat.b = 5, feladat.c = 14;
+            int tomb[] = {1,2,3, 4,5,6, 7,8,9};
+            feladat.mx = tomb;
+            // TODO clear screen, TODO test determinant
+            draw_map(sc);
+            draw_bsz_feladat(sc, feladat);
+        } else {
+            firstgame = false;
+        }
+
         int score = play_game(sc, player_count, 0);
 
         if (score == -1) break;
