@@ -1,6 +1,5 @@
 #include "cli.h"
 
-#include "snake.h"
 #include "debugmalloc.h"
 #include "econio.h"
 
@@ -27,7 +26,7 @@ void ShowConsoleCursor(bool showFlag) {
     cursorInfo.bVisible = showFlag; // set the cursor visibility
     SetConsoleCursorInfo(out, &cursorInfo);
 }
-#endif
+#endif // _WIN32
 
 void cli_init() {
 #ifdef _WIN32
@@ -43,6 +42,7 @@ void cli_init() {
 void cli_draw_map(Screen const *sc) {
     econio_clrscr();
     econio_gotoxy(0, 0);
+    econio_textcolor(COL_WHITE);
     printf("┌");
     for (int i = 1; i <= sc->dim.x * 2; i++) {
         printf("─");
@@ -62,13 +62,11 @@ void cli_draw_map(Screen const *sc) {
     printf("┘");
 
     econio_gotoxy(0, sc->dim.y + 2);
-    econio_flush();
 }
 
-// char* helyett char**-gal jobb lenne és printf("%s")-sel?
-// TODO a karaktereknek 2 szélesnek kéne lenniük, hogy vízszintesen is ugyanolyan gyors legyen a kígyó, mint függőlegesen
 // minden ptlan x koordinátájú karakterben van kígyó, párosokban a filler vonalak
 void cli_draw_block(Block const *b) {
+    econio_textcolor(b->col.cli_code);
     if (b->dir == DIR_R && b->type != TP_HEAD) {
         econio_gotoxy(b->pos.x * 2 + 1, b->pos.y + 1);
         printf("%s%s", TP_CH[b->type], TP_CH[TP_VSZ]);
@@ -94,7 +92,6 @@ void cli_draw_snake(Screen const *sc, Snake const *s) {
         cli_draw_block(ptr);
     }
     econio_gotoxy(0, sc->dim.y + 2);
-    econio_flush();
 }
 
 void cli_erase_block(Block const *b) {
@@ -115,30 +112,38 @@ void cli_erase_snake(Screen const *sc, Snake const *s) {
         cli_erase_block(ptr);
     }
     econio_gotoxy(0, sc->dim.y + 2);
+}
+
+void cli_flush_screen() {
     econio_flush();
 }
 
 void cli_draw_score(Screen const *sc, int score) {
+    econio_textcolor(COL_WHITE);
     econio_gotoxy(0, sc->dim.y + 2); // TODO jó?
     printf("Pontszám: %d\n", score);
 }
 
 void cli_ask_name(char *name, int maxlen) {
-    printf("Milyen néven mentsük el az eredményt? ");
+    econio_textcolor(COL_WHITE);
+    printf("Milyen néven mentsük el az eredményt? (x - ne mentsünk) ");
     econio_normalmode();
 #ifdef _WIN32
     ShowConsoleCursor(true);
-#endif /* _WIN32 */
+#endif // _WIN32
     char format[5+1];
     sprintf(format, " %%%ds", maxlen);
     scanf(format, name);
 #ifdef _WIN32
     ShowConsoleCursor(false);
-#endif /* _WIN32 */
+#endif // _WIN32
     econio_rawmode();
+
+    if (name[0] == 'x' && name[1] == '\0') name[0] = '\0';
 }
 
 void cli_draw_top5(Leaderboard const *lb) {
+    econio_textcolor(COL_WHITE);
     Result *mozgo = lb->results;
     int i = 0;
     while (mozgo != NULL && i < 5) {
@@ -149,66 +154,126 @@ void cli_draw_top5(Leaderboard const *lb) {
 }
 
 bool cli_ask_new_game() {
+    econio_textcolor(COL_WHITE);
     printf("Szeretnél még egyet játszani? (I/N) ");
     char c = 'n'; // ha nem lenne input
     econio_normalmode();
 #ifdef _WIN32
     ShowConsoleCursor(true);
-#endif /* _WIN32 */
+#endif // _WIN32
     scanf(" %c", &c);
 #ifdef _WIN32
     ShowConsoleCursor(false);
-#endif /* _WIN32 */
+#endif // _WIN32
     econio_rawmode();
     return c == 'I' || c == 'i';
 }
 
-// 0: okay, 1: exit
-// TODO tisztázni, hogy ez mit csinál
-/* Itt kéne, hogy legyen a várakozás és a billentyűzet olvasás, majd az értékkel való visszatérés
- * A main-ben kéne a többi dolgot lekezelni
- * Aztán a main-nek megint meg kéne hívnia a rajzoló függvényeket
- * És kezdődne előröl az egész
- * return: key pressed -1 -> játék vége
- */
-int cli_next_frame(Snake *s) {
-    econio_sleep(s->speed);
+int cli_next_frame(double wait_time, SNAKE_KEY *keybuf, int bufsize) {
+    econio_sleep(wait_time);
 
-    // ha egy frame alatt több billentyű is le lett ütve, akkor az utolsó számítson
-    int key = SNAKE_KEY_NONE;
+    int eddig = 0;
     while (econio_kbhit()) {
         int k2 = econio_getch();
-        if (k2 != 0) key = k2;
         // elvileg dobálhat random nullákat a beolvasás
+        if (k2 != 0) {
+            SNAKE_KEY key = SNAKE_KEY_NONE;
+            switch (k2) {
+                case KEY_ESCAPE:
+                    key = SNAKE_KEY_ESCAPE;
+                    break;
+                case KEY_UP:
+                    key = SNAKE_KEY_UP;
+                    break;
+                case KEY_RIGHT:
+                    key = SNAKE_KEY_RIGHT;
+                    break;
+                case KEY_DOWN:
+                    key = SNAKE_KEY_DOWN;
+                    break;
+                case KEY_LEFT:
+                    key = SNAKE_KEY_LEFT;
+                    break;
+                case 'w':
+                    key = SNAKE_KEY_W;
+                    break;
+                case 'a':
+                    key = SNAKE_KEY_A;
+                    break;
+                case 's':
+                    key = SNAKE_KEY_S;
+                    break;
+                case 'd':
+                    key = SNAKE_KEY_D;
+                    break;
+                case 'i':
+                    key = SNAKE_KEY_I;
+                    break;
+                case 'j':
+                    key = SNAKE_KEY_J;
+                    break;
+                case 'k':
+                    key = SNAKE_KEY_K;
+                    break;
+                case 'l':
+                    key = SNAKE_KEY_L;
+                    break;
+                case 't':
+                    key = SNAKE_KEY_T;
+                    break;
+                case 'f':
+                    key = SNAKE_KEY_F;
+                    break;
+                case 'g':
+                    key = SNAKE_KEY_G;
+                    break;
+                case 'h':
+                    key = SNAKE_KEY_H;
+                    break;
+            }
+            if (key != SNAKE_KEY_NONE && eddig < bufsize) {
+                keybuf[eddig++] = key;
+            }
+        }
     }
 
-    //int dir = s->head->dir;
-    switch (key) {
-        case KEY_UP:
-            return SNAKE_KEY_UP;
-        case KEY_RIGHT:
-            return SNAKE_KEY_RIGHT;
-        case KEY_DOWN:
-            return SNAKE_KEY_DOWN;
-        case KEY_LEFT:
-            return SNAKE_KEY_LEFT;
-        case KEY_ESCAPE:
-            return SNAKE_KEY_ESCAPE;
-    }
-
-    /*erase_snake(sc, s);
-    move_snake(s, dir);
-    draw_snake(sc, s);
-    econio_flush();*/
-
-    return SNAKE_KEY_NONE;
+    return eddig;
 }
 
-void cli_exit(Screen const *sc) {
-    econio_gotoxy(0, sc->dim.y + 2);
-    econio_normalmode();
+int cli_draw_bsz_feladat(BSzFeladat feladat) {
+    switch (feladat.type) {
+        case LNKO:
+            printf("Határozd meg %d és %d legnagyobb osztóját! ", feladat.a, feladat.b);
+            break;
+        case KONGRUENCIA:
+            printf("Határozd meg a következő kongruencia legkisebb pozitív megoldását:\n%dx === %d (mod %d)\n", feladat.a, feladat.b, feladat.c);
+            printf("(Ha nincs megoldás, legyen -1 a válasz!) ");
+            break;
+        case PRIME:
+            printf("Prím a következő szám: %d?\n(Igen - 1, Nem - 0) ", feladat.a);
+            break;
+        case DETERMINANS:
+            printf("Határozd meg a következő mátrix determinánsát!\n");
+            for (int i = 0; i < feladat.a; i++) {
+                for (int j = 0; j < feladat.a; j++) {
+                    printf("%d ", feladat.mx[i][j]);
+                }
+                printf("\n");
+            }
+            break;
+    }
+    
+    int ans;
+    scanf("%d", &ans);
+    return ans;
+}
 
+void cli_exit() {
+    econio_textcolor(COL_WHITE);
+    econio_clrscr();
+    econio_gotoxy(0, 0);
+    econio_normalmode();
 #ifdef _WIN32
     ShowConsoleCursor(true);
-#endif /* _WIN32 */
+#endif // _WIN32
 }

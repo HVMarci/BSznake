@@ -5,8 +5,8 @@
 
 #include "debugmalloc.h"
 
-Screen *init_screen(int w, int h, int type, int block_size, void (*game_loop)(void)) {
-    Screen *sc = malloc(sizeof(Screen));
+Screen *init_screen(int w, int h, INTERFACE_TYPE type, int block_size) {
+    Screen *sc = (Screen *) malloc(sizeof(Screen));
 
     if (sc == NULL) return NULL;
 
@@ -16,7 +16,6 @@ Screen *init_screen(int w, int h, int type, int block_size, void (*game_loop)(vo
     sc->block_size = block_size;
     sc->window = NULL;
     sc->renderer = NULL;
-    sc->game_loop = game_loop;
 
     if (type == TYPE_CLI) {
         cli_init();
@@ -67,6 +66,14 @@ void erase_snake(Screen const *sc, Snake const *s) {
     }
 }
 
+void flush_screen(Screen const *sc) {
+    if (sc->type == TYPE_CLI) {
+        cli_flush_screen();
+    } else {
+        gui_flush_screen(sc);
+    }
+}
+
 void draw_score(Screen const *sc, int score) {
     if (sc->type == TYPE_CLI) {
         cli_draw_score(sc, score);
@@ -102,17 +109,25 @@ bool ask_new_game(Screen const *sc) {
     }
 }
 
-int next_frame(Screen const *sc, Snake *s) {
+int next_frame(Screen const *sc, double wait_time, SNAKE_KEY *keybuf, int bufsize) {
     if (sc->type == TYPE_CLI) {
-        return cli_next_frame(s);
+        return cli_next_frame(wait_time, keybuf, bufsize);
     } else {
-        return gui_next_frame(s);
+        return gui_next_frame(wait_time, keybuf, bufsize);
+    }
+}
+
+int draw_bsz_feladat(Screen const *sc, BSzFeladat feladat) {
+    if (sc->type == TYPE_CLI) {
+        return cli_draw_bsz_feladat(feladat);
+    } else {
+        return gui_draw_bsz_feladat(sc, feladat);
     }
 }
 
 void free_screen(Screen *sc) {
     if (sc->type == TYPE_CLI) {
-        cli_exit(sc);
+        cli_exit();
     } else {
         gui_exit(sc);
     }

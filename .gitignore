@@ -42,10 +42,9 @@ Makefile
 
 # Doxygen files
 /docs/
-Doxyfile
 
 # Archives
 *.zip
 
-# Toplist
-results.txt
+# Toplists
+results*.txt

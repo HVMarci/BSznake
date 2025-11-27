@@ -8,6 +8,25 @@
 #include <stdbool.h>
 
 /**
+ * @brief Ilyen feladatokat lehet feladni játék után a játékosnak pluszpontért.
+ */
+typedef enum BSzFeladatTipus {
+    LNKO, KONGRUENCIA, PRIME, DETERMINANS
+} BSzFeladatTipus;
+
+/**
+ * @brief Egy feladatot lehet így eltárolni.
+ * 
+ * `a`, `b`, `c` - a feladat paraméterei olyan sorrendben, amilyenben a megoldó függvény is kéri.
+ * `mx` - determináns számításánál a mátrixra mutat.
+ */
+typedef struct BSzFeladat {
+    BSzFeladatTipus type;
+    int a, b, c;
+    int **mx;
+} BSzFeladat;
+
+/**
  * @brief Megmondja `a` és `b` legnagyobb közös osztóját.
  * 
  * @return `(a,b)`

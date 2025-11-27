@@ -9,45 +9,53 @@
 
 #include "snake.h"
 #include "leaderboard.h"
+#include "bsz.h"
 #include <stdbool.h>
 #include <SDL.h>
 #include <SDL_ttf.h>
 
-#define TYPE_CLI 0
-#define TYPE_GUI 1
+/**
+ * @brief A megjelenítés típusa.
+ */
+typedef enum INTERFACE_TYPE {
+    TYPE_CLI, /**< Konzolos megjelenítés */
+    TYPE_GUI /**< Grafikus megjelenítés */
+} INTERFACE_TYPE;
 
-/*typedef enum INTERFACE_TYPE {
-    TYPE_CLI,
-    TYPE_GUI
-} INTERFACE_TYPE;*/
-
-#define SNAKE_KEY_NONE 0
-#define SNAKE_KEY_ESCAPE 1
-#define SNAKE_KEY_UP 2
-#define SNAKE_KEY_RIGHT 3
-#define SNAKE_KEY_DOWN 4
-#define SNAKE_KEY_LEFT 5
-
-/*typedef enum SNAKE_KEY {
-    SNAKE_KEY_NONE,
-    SNAKE_KEY_ESCAPE,
-    SNAKE_KEY_UP,
-    SNAKE_KEY_RIGHT,
-    SNAKE_KEY_DOWN,
-    SNAKE_KEY_LEFT
-} SNAKE_KEY;*/
+/**
+ * @brief A lenyomott gomb értéke.
+ */
+typedef enum SNAKE_KEY {
+    SNAKE_KEY_NONE, /**< Semmi nem lett lenyomva */
+    SNAKE_KEY_ESCAPE, /**< Esc */
+    SNAKE_KEY_UP, /**< Fel nyíl */
+    SNAKE_KEY_RIGHT, /**< Jobbra nyíl */
+    SNAKE_KEY_DOWN, /**< Le nyíl */
+    SNAKE_KEY_LEFT, /**< Balra nyíl */
+    SNAKE_KEY_W = 'w', /**< W */
+    SNAKE_KEY_A = 'a', /**< A */
+    SNAKE_KEY_S = 's', /**< S */
+    SNAKE_KEY_D = 'd', /**< D */
+    SNAKE_KEY_I = 'i', /**< I */
+    SNAKE_KEY_J = 'j', /**< J */
+    SNAKE_KEY_K = 'k', /**< K */
+    SNAKE_KEY_L = 'l', /**< L */
+    SNAKE_KEY_T = 't', /**< T */
+    SNAKE_KEY_F = 'f', /**< F */
+    SNAKE_KEY_G = 'g', /**< G */
+    SNAKE_KEY_H = 'h' /**< H */
+} SNAKE_KEY;
 
 /**
  * @brief A megjelenítés adatait tároló struct.
  */
 typedef struct Screen {
     Coord dim; /**< A pálya méretei, nem pixelben, hanem blokkszámban */
-    int type; /**< A megjelenítés típusa: grafikus vagy konzolos */
+    INTERFACE_TYPE type; /**< A megjelenítés típusa: grafikus vagy konzolos */
     int block_size; /**< Grafikus megjelenítés esetén hány pixel legyen egy blokk */
     SDL_Window *window; /**< Grafikus megjelenítéshez */
     SDL_Renderer *renderer; /**< Grafikus megjelenítéshez */
     TTF_Font *font; /**< Grafikus megjelenítéshez */
-    void (*game_loop)(void); /**< fölösleges - TODO kitörölni */
 } Screen;
 
 /**
@@ -63,7 +71,7 @@ typedef struct Screen {
  * 
  * @return Dinamikusan foglalt Screen struct, amivel a megjelenítő függvényeket kell hívni. Használat végén `free_screen`-nel fel kell szabadítani!
  */
-Screen *init_screen(int w, int h, int type, int block_size, void (*game_loop)(void));
+Screen *init_screen(int w, int h, INTERFACE_TYPE type, int block_size);
 
 /**
  * @brief Kirajzolja a pályát.
@@ -116,6 +124,13 @@ void erase_block(Screen const *sc, Block const *b);
 void erase_snake(Screen const *sc, Snake const *s);
 
 /**
+ * @brief A pufferekben tárolt adatokat kirajzolja a képernyőre.
+ * 
+ * @param sc Az `init_screen`-től kapott mutató a Screen struct-ra
+ */
+void flush_screen(Screen const *sc);
+
+/**
  * @brief Kiírja a pontszámot.
  * 
  * @param sc Az `init_screen`-től kapott mutató a Screen struct-ra
@@ -152,14 +167,19 @@ bool ask_new_game(Screen const *sc);
 /**
  * @brief A következő képkocka kezelése.
  * 
- * Vár az s->speed által megadott másodpercet, és beolvassa az adott idő alatt utoljára lenyomott gombot a billentyűzetről.
+ * Vár az s->speed által megadott másodpercet, és beolvassa az adott idő alatt lenyomott gombokat a billentyűzetről. Az első `bufsize` darabot eltárolja `keybuf`-ban.
  * 
  * @param sc Az `init_screen`-től kapott mutató a Screen struct-ra
- * @param s Mutató a kígyóra (s->speed miatt)
+ * @param wait_time Hány mp teljen el a következő képkocka előtt?
+ * @param keybuf Egy puffer, amiben a függvény eltárolhatja a lenyomott billentyűket
+ * @param bufsize A puffer mérete - ennél több billentyűlenyomást nem tárol el a függvény
  * 
- * @return A leütött billentyű kódja, vagy SNAKE_KEY_NONE (TODO enum)
+ * @return A beolvasott billentyűk száma
  */
-int next_frame(Screen const *sc, Snake *s);
+int next_frame(Screen const *sc, double wait_time, SNAKE_KEY *keybuf, int bufsize);
+
+// TODO doksi
+int draw_bsz_feladat(Screen const *sc, BSzFeladat feladat);
 
 /**
  * @brief Lezárja az `init_screen` által betöltött könyvtárakat és felszabadítja a Screen structot.
@@ -168,4 +188,4 @@ int next_frame(Screen const *sc, Snake *s);
  */
 void free_screen(Screen *sc);
 
-#endif
+#endif // _INTERFACE_H

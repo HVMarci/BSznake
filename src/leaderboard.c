@@ -44,18 +44,34 @@ Leaderboard *open_leaderboard(const char *filename) {
 }
 
 void add_score(Leaderboard *lb, const char *name, int score) {
-    Result *uj = (Result *) malloc(sizeof(Result));
-    strcpy(uj->name, name);
-    uj->score = score;
-
     Result *mozgo = lb->results, **lemarado = &lb->results;
-    while (mozgo != NULL && mozgo->score >= uj->score) {
+    while (mozgo != NULL && mozgo->score >= score) {
+        if (strcmp(name, mozgo->name) == 0) return; // Már ért el jobb pontszámot
         lemarado = &mozgo->next;
         mozgo = mozgo->next;
     }
 
+    Result *uj = (Result *) malloc(sizeof(Result));
+    strcpy(uj->name, name);
+    uj->score = score;
+
     *lemarado = uj;
     uj->next = mozgo;
+    lemarado = &uj->next;
+
+    while (mozgo != NULL) {
+        // korábbi gyengébb eredmények törlése
+        if (strcmp(name, mozgo->name) == 0) {
+            Result *tmp = mozgo;
+            mozgo = mozgo->next;
+            *lemarado = mozgo;
+
+            free(tmp);
+        } else {
+            lemarado = &mozgo->next;
+            mozgo = mozgo->next;
+        }
+    }
 }
 
 void save_leaderboard(Leaderboard *lb) {

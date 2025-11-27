@@ -4,25 +4,43 @@
 #include "econio.h"
 #include "debugmalloc.h"
 
-void init_snake(Snake *s, int len, int x, int y, double speed) {
+void init_snake(Snake *s, int len, int x, int y, DIR dir, Color col) {
     s->len = len;
-    s->speed = speed;
-    s->head = malloc(sizeof(Block));
+    s->alive = true;
+    s->head = (Block *) malloc(sizeof(Block));
     s->head->pos.x = x;
     s->head->pos.y = y;
     s->head->type = TP_HEAD;
-    s->head->dir = DIR_R;
+    s->head->dir = dir;
+    s->head->col = col;
     s->head->next = NULL;
     s->head->prev = NULL;
 
     Block* cur = s->head;
     for (int i = 1; i < len; i++) {
-        cur->next = malloc(sizeof(Block));
-        cur->next->pos.x = x - i;
-        cur->next->pos.y = y;
-        cur->next->type = TP_VSZ;
-        cur->next->dir = DIR_R;
-        s->head->dir = DIR_R;
+        cur->next = (Block *) malloc(sizeof(Block));
+        switch (dir) {
+            case DIR_U:
+                cur->next->pos.x = x;
+                cur->next->pos.y = y + i;
+                break;
+            case DIR_R:
+                cur->next->pos.x = x - i;
+                cur->next->pos.y = y;
+                break;
+            case DIR_D:
+                cur->next->pos.x = x;
+                cur->next->pos.y = y - i;
+                break;
+            case DIR_L:
+                cur->next->pos.x = x + i;
+                cur->next->pos.y = y;
+                break;
+        }
+        cur->next->type = (dir == DIR_R || dir == DIR_L) ?  TP_VSZ : TP_FG;
+        cur->next->dir = dir;
+        cur->next->col = col;
+        //s->head->dir = dir; // ?
         cur->next->next = NULL;
         cur->next->prev = cur;
 
@@ -35,9 +53,9 @@ void init_snake(Snake *s, int len, int x, int y, double speed) {
 /**
  * Snake must be freed!
  */
-Snake *new_snake(int len, int x, int y, double speed) {
-    Snake *s = malloc(sizeof(Snake));
-    init_snake(s, len, x, y, speed);
+Snake *new_snake(int len, int x, int y, DIR dir, Color col) {
+    Snake *s = (Snake *) malloc(sizeof(Snake));
+    init_snake(s, len, x, y, dir, col);
     return s;
 }
 
@@ -51,9 +69,10 @@ void free_snake(Snake *s) {
 }
 
 // TODO kígyó hossz min 5!!
-void move_snake(Snake *s, int dir) {
-    Block *head = malloc(sizeof(Block));
+void move_snake(Snake *s, DIR dir) {
+    Block *head = (Block *) malloc(sizeof(Block));
     head->dir = dir;
+    head->col = s->head->col;
     head->type = TP_HEAD;
     head->prev = NULL;
 
@@ -105,18 +124,6 @@ void shorten_snake(Snake *s) {
     s->tail->next = NULL;
 }
 
-int check_snake(Coord dim, Snake const *s, Block const *apple) {
-    if (s->head->pos.x < 0 || s->head->pos.y < 0 || s->head->pos.x >= dim.x || s->head->pos.y >= dim.y) return COLL_WALL;
-
-    if (s->head->pos.x == apple->pos.x && s->head->pos.y == apple->pos.y) return COLL_APPLE;
-
-    for (Block const *ptr = s->head->next; ptr != s->tail; ptr = ptr->next) {
-        if (s->head->pos.x == ptr->pos.x && s->head->pos.y == ptr->pos.y) return COLL_SELF;
-    }
-
-    return COLL_NONE;
-}
-
 int cmp(const void *pa, const void *pb) {
     int a = *(const int *) pa;
     int b = *(const int *) pb;
@@ -125,14 +132,37 @@ int cmp(const void *pa, const void *pb) {
     return 1;
 }
 
-int exclude_snake(Coord dim, Snake const *s, int pos, int *posbuf) {
+void fill_posbuf(Coord dim, Snake **snakes, int snake_count, int *posbuf) {
     int bufi = 0;
-    for (Block const *ptr = s->head; ptr != NULL; ptr = ptr->next) {
-        posbuf[bufi++] = ptr->pos.y * dim.x + ptr->pos.x;
+    for (int i = 0; i < snake_count; i++) {
+        Snake const *s = snakes[i];
+        if (!s->alive) continue; // csak élő kígyókkal foglalkozunk
+        for (Block const *ptr = s->head; ptr != NULL; ptr = ptr->next) {
+            posbuf[bufi++] = ptr->pos.y * dim.x + ptr->pos.x;
+        }
+    }
+    posbuf[bufi] = -1;
+    qsort(posbuf, bufi, sizeof(int), cmp);
+}
+
+int check_snake(Coord dim, Snake const *s, int const *posbuf) {
+    if (s->head->pos.x < 0 || s->head->pos.y < 0 || s->head->pos.x >= dim.x || s->head->pos.y >= dim.y) return COLL_WALL;
+
+    int pos = s->head->pos.y * dim.x + s->head->pos.x;
+
+    // annyira rövid a tömb, hogy nem érdemes bináris kereséssel vacakolni, főleg, hogy nem tudjuk a posbuf méretét
+    int talalat = 0;
+    for (int i = 0; posbuf[i] != -1; i++) {
+        if (posbuf[i] == pos) talalat++;
+
+        if (talalat > 1) return COLL_SNAKE;
     }
 
-    qsort(posbuf, s->len, sizeof(int), cmp);
-    for (int i = 0; i < s->len; i++) {
+    return COLL_NONE;
+}
+
+int exclude_snakes(int pos, int const *posbuf) {
+    for (int i = 0; posbuf[i] != -1; i++) {
         if (posbuf[i] <= pos) pos++;
     }
 
