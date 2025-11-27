@@ -368,12 +368,12 @@ int gui_draw_bsz_feladat(Screen const *sc, BSzFeladat feladat) {
             break;
         }
         case DETERMINANS: {
-            sprintf(text, "Határozd meg a következő mátrix determinánsát!\n");
+            sprintf(text, "Határozd meg az alábbi mátrix determinánsát!");
             write_text(sc, fekete, text, 4*35);
             for (int i = 0; i < feladat.a; i++) {
                 text[0] = '\0';
                 for (int j = 0; j < feladat.a; j++) {
-                    sprintf(szamtext, "%d", feladat.mx[i][j]);
+                    sprintf(szamtext, " %g ", feladat.mx[i][j]);
                     strcat(text, szamtext);
                 }
                 write_text(sc, fekete, text, (5 + i) * 35);

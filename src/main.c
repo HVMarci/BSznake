@@ -159,11 +159,18 @@ void run_app(INTERFACE_TYPE interface_type, int player_count) {
             BSzFeladat feladat;
             feladat.type = DETERMINANS;
             feladat.a = 3, feladat.b = 5, feladat.c = 14;
-            int tomb[] = {1,2,3, 4,5,6, 7,8,9};
-            feladat.mx = tomb;
+            double tomb[3][3]= {{1,2,3}, {4,5,6}, {7,8,9}};
+            feladat.mx = malloc(3*sizeof(double*));
+            for (int i = 0; i < 3; i++) {
+                feladat.mx[i] = malloc(3*sizeof(double));
+                for (int j = 0; j < 3; j++) feladat.mx[i][j] = tomb[i][j];
+            }
+            //feladat.mx = tomb;
             // TODO clear screen, TODO test determinant
             draw_map(sc);
             draw_bsz_feladat(sc, feladat);
+            for (int i = 0; i < 3; i++) free(feladat.mx[i]);
+            free(feladat.mx);
         } else {
             firstgame = false;
         }

@@ -256,7 +256,7 @@ int cli_draw_bsz_feladat(BSzFeladat feladat) {
             printf("Határozd meg a következő mátrix determinánsát!\n");
             for (int i = 0; i < feladat.a; i++) {
                 for (int j = 0; j < feladat.a; j++) {
-                    printf("%d ", feladat.mx[i][j]);
+                    printf("%g ", feladat.mx[i][j]);
                 }
                 printf("\n");
             }

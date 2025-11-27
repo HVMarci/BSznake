@@ -23,7 +23,7 @@ typedef enum BSzFeladatTipus {
 typedef struct BSzFeladat {
     BSzFeladatTipus type;
     int a, b, c;
-    int **mx;
+    double **mx;
 } BSzFeladat;
 
 /**
@@ -58,4 +58,4 @@ bool prime(long long p);
  */
 double det(double **mx, int n);
 
-#endif /* _BSZ_H */
+#endif // _BSZ_H
