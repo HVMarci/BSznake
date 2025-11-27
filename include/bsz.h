@@ -12,19 +12,24 @@
  * 
  * @return `(a,b)`
  */
-int lnko(int a, int b);
+long long lnko(long long a, long long b);
 
 /**
  * @brief Megadja az `ax === b (mod m)` kongruenciarendszer legkisebb megoldását.
  * 
  * @return `x` értéke (`0 <= x < m`)
  */
-int kongruencia(int a, int b, int m);
+long long kongruencia(long long a, long long b, long long m);
+
+/**
+ * @brief Kiszámítja `a^n (mod m)` értékét.
+ */
+long long modexp(long long a, long long n, long long m);
 
 /**
  * @brief Megmondja `p`-ről, hogy prím-e.
  */
-bool prime(int p);
+bool prime(long long p);
 
 /**
  * @brief Kiszámolja egy nxn-es mátrix determinánsát.
@@ -32,6 +37,6 @@ bool prime(int p);
  * @param mx A mátrix
  * @param n A mátrix mérete
  */
-int det(int **mx, int n);
+double det(double **mx, int n);
 
 #endif /* _BSZ_H */

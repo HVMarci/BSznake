@@ -19,9 +19,17 @@ int stoi(char const *str, int def) {
 
 // [min, max] inclusive
 int randint(int min, int max) {
-    double r = (double) rand() / (double) RAND_MAX;
+    long double r = (long double) rand() / (long double) RAND_MAX;
     int range = max - min + 1;
     r = (r * range) + min;
 
     return (int) r;
+}
+
+long long randll(long long min, long long max) {
+    long double r = (long double) rand() / (long double) RAND_MAX;
+    long long range = max - min + 1;
+    r = (r * range) + min;
+
+    return (long long) r;
 }
