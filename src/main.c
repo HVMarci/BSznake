@@ -20,15 +20,15 @@ typedef struct InitData {
 
 // WASD irány jobb lenne! (WDSA helyett)
 InitData const init_snake_data[4] = {
-    {10, 8, DIR_R, {50, 168, 82, COL_GREEN}, {SNAKE_KEY_UP, SNAKE_KEY_RIGHT, SNAKE_KEY_DOWN, SNAKE_KEY_LEFT}},
-    {20, 13, DIR_U, {43, 82, 173, COL_CYAN}, {SNAKE_KEY_W, SNAKE_KEY_D, SNAKE_KEY_S, SNAKE_KEY_A}},
-    {26, 6, DIR_D, {196, 55, 76, COL_RED}, {SNAKE_KEY_I, SNAKE_KEY_L, SNAKE_KEY_K, SNAKE_KEY_J}},
-    {29, 12, DIR_L, {184, 196, 55, COL_YELLOW}, {SNAKE_KEY_T, SNAKE_KEY_H, SNAKE_KEY_G, SNAKE_KEY_F}}
+    {9, 8, DIR_R, {50, 168, 82, COL_GREEN}, {SNAKE_KEY_UP, SNAKE_KEY_RIGHT, SNAKE_KEY_DOWN, SNAKE_KEY_LEFT}},
+    {19, 12, DIR_U, {43, 82, 173, COL_CYAN}, {SNAKE_KEY_W, SNAKE_KEY_D, SNAKE_KEY_S, SNAKE_KEY_A}},
+    {26, 5, DIR_D, {196, 55, 76, COL_RED}, {SNAKE_KEY_I, SNAKE_KEY_L, SNAKE_KEY_K, SNAKE_KEY_J}},
+    {26, 12, DIR_L, {184, 196, 55, COL_YELLOW}, {SNAKE_KEY_T, SNAKE_KEY_H, SNAKE_KEY_G, SNAKE_KEY_F}}
 };
 
 int play_game(Screen *sc, int player_count, int starting_score) {
     Snake **snakes = (Snake **) malloc(player_count * sizeof(Snake *));
-    double game_speed = .1; // nem lehet Snake-ben, mert minden játékos között közösnek kell lennie
+    double game_speed = .25; // nem lehet Snake-ben, mert minden játékos között közösnek kell lennie
     int alive_count = player_count; // hányan vannak még életben
 
     int starting_len = starting_score / player_count;
@@ -96,14 +96,13 @@ int play_game(Screen *sc, int player_count, int starting_score) {
                 // minél többen élnek még, annál több pontot ér az alma
                 score += alive_count;
                 // legyen a játék gyorsabb
-                game_speed *= .995;
+                game_speed *= .99;
             } else {
                 erase_block(sc, s->tail);
                 shorten_snake(s);
             }
         }
 
-        draw_score(sc, score);
         fill_posbuf(sc->dim, snakes, player_count, posbuf);
         for (int i = 0; i < player_count; i++) {
             Snake *s = snakes[i];
@@ -121,7 +120,12 @@ int play_game(Screen *sc, int player_count, int starting_score) {
                 default:
                     break;
             }
+        }
 
+        draw_score(sc, score);
+        
+        for (int i = 0; i < player_count; i++) {
+            Snake *s = snakes[i];
             if (s->alive) draw_snake(sc, s); // ha most ütközött volna, akkor már ne rajzoljuk ki újra!
         }
 

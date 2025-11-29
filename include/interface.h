@@ -23,30 +23,6 @@ typedef enum INTERFACE_TYPE {
 } INTERFACE_TYPE;
 
 /**
- * @brief A lenyomott gomb értéke.
- */
-typedef enum SNAKE_KEY {
-    SNAKE_KEY_NONE, /**< Semmi nem lett lenyomva */
-    SNAKE_KEY_ESCAPE, /**< Esc */
-    SNAKE_KEY_UP, /**< Fel nyíl */
-    SNAKE_KEY_RIGHT, /**< Jobbra nyíl */
-    SNAKE_KEY_DOWN, /**< Le nyíl */
-    SNAKE_KEY_LEFT, /**< Balra nyíl */
-    SNAKE_KEY_W = 'w', /**< W */
-    SNAKE_KEY_A = 'a', /**< A */
-    SNAKE_KEY_S = 's', /**< S */
-    SNAKE_KEY_D = 'd', /**< D */
-    SNAKE_KEY_I = 'i', /**< I */
-    SNAKE_KEY_J = 'j', /**< J */
-    SNAKE_KEY_K = 'k', /**< K */
-    SNAKE_KEY_L = 'l', /**< L */
-    SNAKE_KEY_T = 't', /**< T */
-    SNAKE_KEY_F = 'f', /**< F */
-    SNAKE_KEY_G = 'g', /**< G */
-    SNAKE_KEY_H = 'h' /**< H */
-} SNAKE_KEY;
-
-/**
  * @brief A megjelenítés adatait tároló struct.
  */
 typedef struct Screen {
