@@ -12,6 +12,8 @@ SDL_Color const feher = { 0xFF, 0xFF, 0xFF, 0xFF };
 SDL_Color const szurkes = { 0x05, 0x05, 0x05, 0xDD };
 SDL_Color const kek = { 0x00, 0x00, 0xFF, 0xFF };
 SDL_Color const fekete = { 0x00, 0x00, 0x00, 0xFF };
+SDL_Color const zold = { 0x00, 0xFF, 0x00, 0xFF };
+SDL_Color const piros = { 0xFF, 0x00, 0x00, 0xFF };
 
 void gui_init(Screen *sc) {
     if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_EVENTS) < 0) {
@@ -92,8 +94,8 @@ void gui_flush_screen(Screen const *sc) {
     SDL_RenderPresent(sc->renderer);
 }
 
-void write_text(Screen const *sc, SDL_Color background_color, char *szoveg, int y) {
-    SDL_Surface *felirat = TTF_RenderUTF8_Shaded(sc->font, szoveg, feher, background_color);
+void write_text(Screen const *sc, SDL_Color color, SDL_Color background_color, char *szoveg, int y) {
+    SDL_Surface *felirat = TTF_RenderUTF8_Shaded(sc->font, szoveg, color, background_color);
     SDL_Texture *felirat_t = SDL_CreateTextureFromSurface(sc->renderer, felirat);
     SDL_Rect hova = { ((sc->dim.x+2)*sc->block_size - felirat->w)/2, y, felirat->w, felirat->h };
     SDL_RenderCopy(sc->renderer, felirat_t, NULL, &hova);
@@ -105,7 +107,7 @@ void gui_draw_score(Screen const *sc, int score) {
     static char szoveg[20+1];
     sprintf_s(szoveg, 21, "Pontszám: %d", score);
 
-    write_text(sc, szurkes, szoveg, 3*32);
+    write_text(sc, feher, szurkes, szoveg, 3*32);
 }
 
 /* Forrás: InfoC
@@ -231,7 +233,7 @@ bool input_text(char *dest, size_t hossz, SDL_Rect teglalap, SDL_Color hatter, S
 void gui_ask_name(Screen const *sc, char *name, int maxlen) {
     char *szoveg = "Milyen néven mentsük el az eredményt?";
 
-    write_text(sc, fekete, szoveg, 4*35);
+    write_text(sc, feher, fekete, szoveg, 4*35);
 
     SDL_Rect teglalap = { (sc->dim.x+2)*sc->block_size / 6, 5*35, (sc->dim.x+2)*sc->block_size * 2 / 3, 32 };
     SDL_Color hatter = { 0x11, 0x11, 0x11, 0xDD };
@@ -244,7 +246,7 @@ void gui_draw_top5(Screen const *sc, Leaderboard const *lb) {
     int i = 0;
     while (mozgo != NULL && i < 5) {
         sprintf(szoveg, "%d. %s: %d pont", i+1, mozgo->name, mozgo->score);
-        write_text(sc, kek, szoveg, (i + 2) * 35);
+        write_text(sc, feher, kek, szoveg, (i + 2) * 35);
         i++;
         mozgo = mozgo->next;
     }
@@ -253,8 +255,8 @@ void gui_draw_top5(Screen const *sc, Leaderboard const *lb) {
 bool gui_ask_new_game(Screen const *sc) {
     char *szoveg1 = "Szeretnél még egyet játszani?", *szoveg2 = "Enter: igen, Escape: nem"; // global
     
-    write_text(sc, szurkes, szoveg2, 9*35);
-    write_text(sc, szurkes, szoveg1, 8*35);
+    write_text(sc, feher, szurkes, szoveg2, 9*35);
+    write_text(sc, feher, szurkes, szoveg1, 8*35);
     SDL_RenderPresent(sc->renderer);
 
     bool done = false, ujat = false;
@@ -311,7 +313,6 @@ int gui_next_frame(double wait_time, SNAKE_KEY *keybuf, int bufsize) {
                     case SDLK_RIGHT: key = SNAKE_KEY_RIGHT; break;
                     case SDLK_DOWN: key = SNAKE_KEY_DOWN; break;
                     case SDLK_LEFT: key = SNAKE_KEY_LEFT; break;
-                    case SDLK_ESCAPE: key = SNAKE_KEY_ESCAPE; break;
                     case SDLK_w: key = SNAKE_KEY_W; break;
                     case SDLK_a: key = SNAKE_KEY_A; break;
                     case SDLK_s: key = SNAKE_KEY_S; break;
@@ -324,6 +325,7 @@ int gui_next_frame(double wait_time, SNAKE_KEY *keybuf, int bufsize) {
                     case SDLK_f: key = SNAKE_KEY_F; break;
                     case SDLK_g: key = SNAKE_KEY_G; break;
                     case SDLK_h: key = SNAKE_KEY_H; break;
+                    case SDLK_ESCAPE: return -1;
                 }
                 if (key != SNAKE_KEY_NONE && eddig < bufsize) {
                     keybuf[eddig++] = key;
@@ -331,10 +333,7 @@ int gui_next_frame(double wait_time, SNAKE_KEY *keybuf, int bufsize) {
                 break;
             }
             case SDL_QUIT: {
-                keybuf[0] = SNAKE_KEY_ESCAPE;
-                eddig = 1;
-                done = true;
-                break;
+                return -1;
             }
         }
     }
@@ -343,51 +342,73 @@ int gui_next_frame(double wait_time, SNAKE_KEY *keybuf, int bufsize) {
 }
 
 int gui_draw_bsz_feladat(Screen const *sc, BSzFeladat feladat) {
+    SDL_Rect teglalap = { sc->block_size, sc->block_size, sc->dim.x * sc->block_size, sc->dim.y * sc->block_size };
+    SDL_SetRenderDrawColor(sc->renderer, 0x00, 0x00, 0x00, 0xFF);
+    SDL_RenderDrawRect(sc->renderer, &teglalap);
+
     static char text[128];
     static char szamtext[16];
     switch (feladat.type) {
         case LNKO: {
             sprintf(text, "Határozd meg %d és %d legnagyobb osztóját!", feladat.a, feladat.b);
-            write_text(sc, fekete, text, 4*35);
+            write_text(sc, feher, fekete, text, 4*35);
             break;
         }
         case KONGRUENCIA: {
             sprintf(text, "Mi a legkisebb pozitív megoldása?");
-            write_text(sc, fekete, text, 4*35);
+            write_text(sc, feher, fekete, text, 4*35);
             sprintf(text, "%dx === %d (mod %d)", feladat.a, feladat.b, feladat.c);
-            write_text(sc, fekete, text, 5*35);
+            write_text(sc, feher, fekete, text, 5*35);
             sprintf(text, "(Ha nincs megoldás, legyen -1 a válasz!)");
-            write_text(sc, fekete, text, 6*35);
+            write_text(sc, feher, fekete, text, 6*35);
             break;
         }
         case PRIME: {
             sprintf(text, "Prím a következő szám: %d?", feladat.a);
-            write_text(sc, fekete, text, 4*35);
+            write_text(sc, feher, fekete, text, 4*35);
             sprintf(text, "(Igen - 1, Nem - 0)");
-            write_text(sc, fekete, text, 5*35);
+            write_text(sc, feher, fekete, text, 5*35);
             break;
         }
         case DETERMINANS: {
             sprintf(text, "Határozd meg az alábbi mátrix determinánsát!");
-            write_text(sc, fekete, text, 4*35);
+            write_text(sc, feher, fekete, text, 4*35);
             for (int i = 0; i < feladat.a; i++) {
                 text[0] = '\0';
                 for (int j = 0; j < feladat.a; j++) {
-                    sprintf(szamtext, " %g ", feladat.mx[i][j]);
+                    sprintf(szamtext, " %5g ", feladat.mx[i][j]);
                     strcat(text, szamtext);
                 }
-                write_text(sc, fekete, text, (5 + i) * 35);
+                write_text(sc, feher, fekete, text, (5 + i) * 35);
             }
             break;
         }
     }
 
     char ansstr[32];
-    SDL_Rect teglalap = { (sc->dim.x+2)*sc->block_size / 6, 2*35, (sc->dim.x+2)*sc->block_size * 2 / 3, 32 };
+    teglalap = (SDL_Rect) { (sc->dim.x+2)*sc->block_size / 6, 2*35, (sc->dim.x+2)*sc->block_size * 2 / 3, 32 };
     SDL_Color hatter = { 0x11, 0x11, 0x11, 0xDD };
     input_text(ansstr, 32, teglalap, hatter, feher, sc->font, sc->renderer, true);
 
     return stoi(ansstr, 0);
+}
+
+void gui_draw_bsz_result(Screen const *sc, bool siker, int jo) {
+    static char text[32];
+    SDL_Rect teglalap = { sc->block_size, sc->block_size, sc->dim.x * sc->block_size, sc->dim.y * sc->block_size };
+    SDL_SetRenderDrawColor(sc->renderer, 0x00, 0x00, 0x00, 0xFF);
+    SDL_RenderFillRect(sc->renderer, &teglalap);
+
+    SDL_Color szin;
+    if (siker) {
+        sprintf(text, "Jó megoldás!");
+        szin = zold;
+    } else {
+        sprintf(text, "Rossz megoldás, a jó: %d", jo);
+        szin = piros;
+    }
+
+    write_text(sc, szin, fekete, text, ((sc->block_size + 2) * sc->dim.y) / 2 - 32);
 }
 
 void gui_exit(Screen *sc) {
@@ -402,4 +423,3 @@ void gui_exit(Screen *sc) {
 
     SDL_Quit();
 }
-//void gui_set_game_loop(void (*f)(void)) {}

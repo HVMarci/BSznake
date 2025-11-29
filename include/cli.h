@@ -24,6 +24,7 @@ void cli_draw_top5(Leaderboard const *lb);
 bool cli_ask_new_game();
 int cli_next_frame(double wait_time, SNAKE_KEY *keybuf, int bufsize);
 int cli_draw_bsz_feladat(BSzFeladat feladat);
+void cli_draw_bsz_result(bool siker, int jo);
 void cli_exit();
 
 #endif // _CLI_H

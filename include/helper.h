@@ -5,6 +5,8 @@
 #ifndef _HELPER_H
 #define _HELPER_H
 
+#include <stdbool.h>
+
 /**
  * @brief char const * -> int
  * 
@@ -18,7 +20,7 @@
 int stoi(char const *str, int def);
 
 /**
- * @brief Random szám generálása.
+ * @brief Random `int` generálása.
  * 
  * Random számot generál [min,max] tartományban. A `rand()` függvényt használja, így `srand()`-ot be kell állítani.
  * Egyenlő eséllyel generálja bármelyik számot a tartományban.
@@ -28,7 +30,31 @@ int stoi(char const *str, int def);
  * 
  * @return Random szám
  */
-// random number [min,max] inclusive, srand() must be set first
 int randint(int min, int max);
+
+/**
+ * @brief Random `long long` generálása.
+ * 
+ * Random számot generál [min,max] tartományban. A `rand()` függvényt használja, így `srand()`-ot be kell állítani.
+ * Egyenlő eséllyel generálja bármelyik számot a tartományban. (Igaz, nem teljesen tökéletes...)
+ * 
+ * @param min Az intervallum kezdete
+ * @param max Az intervallum vége
+ * 
+ * @return Random szám
+ */
 long long randll(long long min, long long max);
+
+/**
+ * @brief Double értékeket hasonlít össze.
+ * 
+ * @return `|a - b| < 1e-6`
+ */
+bool double_eq(double a, double b);
+
+/**
+ * @brief `qsort`-hoz összehasonlító függvény `int`-ekre
+ */
+int int_cmp(const void *pa, const void *pb);
+
 #endif // _HELPER_H

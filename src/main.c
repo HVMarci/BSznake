@@ -32,15 +32,18 @@ int play_game(Screen *sc, int player_count, int starting_score) {
     Snake **snakes = (Snake **) malloc(player_count * sizeof(Snake *));
     double game_speed = .1; // nem lehet Snake-ben, mert minden játékos között közösnek kell lennie
     int alive_count = player_count; // hányan vannak még életben
-    int sumlen = player_count * (starting_score + 5); // A kígyók hossza összesen
+
+    int starting_len = starting_score / player_count;
+
+    int sumlen = player_count * (starting_len + 5); // A kígyók hossza összesen
     for (int i = 0; i < player_count; i++) {
-        snakes[i] = new_snake(starting_score + 5, init_snake_data[i].x, init_snake_data[i].y, init_snake_data[i].dir, init_snake_data[i].col);
+        snakes[i] = new_snake(starting_len + 5, init_snake_data[i].x, init_snake_data[i].y, init_snake_data[i].dir, init_snake_data[i].col);
     }
     int *posbuf = (int *) malloc((sc->dim.x * sc->dim.y + 1) * sizeof(int));
     const int KEYBUF_SIZE = 32;
     SNAKE_KEY *keybuf = (SNAKE_KEY *) malloc(KEYBUF_SIZE * sizeof(SNAKE_KEY));
 
-    int score = starting_score;
+    int score = starting_len * player_count; // maradékok levágása
 
     Block *apple = (Block *) malloc(sizeof(Block));
     apple->pos.x = 30;
@@ -61,6 +64,12 @@ int play_game(Screen *sc, int player_count, int starting_score) {
 
     while (!end_game) {
         int rc = next_frame(sc, game_speed, keybuf, KEYBUF_SIZE);
+        if (rc == -1) {
+            end_game = true;
+            exit = true;
+            break;
+        }
+
         for (int i = 0; i < player_count; i++) {
             Snake *s = snakes[i];
             if (!s->alive) continue;
@@ -70,10 +79,6 @@ int play_game(Screen *sc, int player_count, int starting_score) {
                 SNAKE_KEY key = keybuf[k];
                 for (int j = 0; j < 4; j++) {
                     if (key == init_snake_data[i].keys[j]) dir = j;
-                }
-                if (key == SNAKE_KEY_ESCAPE) {
-                    end_game = true;
-                    exit = true;
                 }
             }
 
@@ -99,8 +104,6 @@ int play_game(Screen *sc, int player_count, int starting_score) {
             }
         }
 
-        //printf("MOVED\n");
-
         draw_score(sc, score);
         fill_posbuf(sc->dim, snakes, player_count, posbuf);
         for (int i = 0; i < player_count; i++) {
@@ -123,13 +126,12 @@ int play_game(Screen *sc, int player_count, int starting_score) {
 
         if (apple->pos.x == -1) {
             // alma áthelyezése
-            int newpos = exclude_snakes(randint(0, sc->dim.x * sc->dim.y - sumlen - 1), posbuf);
+            int newpos = exclude_snakes(randint(0, (sc->dim.x * sc->dim.y - sumlen - 1)/3), posbuf);
 
             apple->pos.x = newpos % sc->dim.x;
             apple->pos.y = newpos / sc->dim.x;
-
-            draw_block(sc, apple);
         }
+        draw_block(sc, apple); // netán felülírná a pontszámláló
     
         flush_screen(sc);
     }
@@ -154,28 +156,35 @@ void run_app(INTERFACE_TYPE interface_type, int player_count) {
     sprintf(results_filename, "results%dp.txt", player_count);
 
     bool exit = false, firstgame = true;
+    int score;
     while (!exit) {
+        int starting_score = 0;
+
         if (!firstgame) {
-            BSzFeladat feladat;
-            feladat.type = DETERMINANS;
-            feladat.a = 3, feladat.b = 5, feladat.c = 14;
-            double tomb[3][3]= {{1,2,3}, {4,5,6}, {7,8,9}};
-            feladat.mx = malloc(3*sizeof(double*));
-            for (int i = 0; i < 3; i++) {
-                feladat.mx[i] = malloc(3*sizeof(double));
-                for (int j = 0; j < 3; j++) feladat.mx[i][j] = tomb[i][j];
+            BSzFeladat feladat = feladat_generalas();
+
+            draw_map(sc); // leürítjük a képernyőt a pályán kívül
+            int answer = draw_bsz_feladat(sc, feladat);
+            int good = get_answer(feladat);
+
+            draw_bsz_result(sc, answer == good, good);
+            flush_screen(sc);
+            if (next_frame(sc, 2.5, NULL, 0) == -1) {
+                exit = true;
             }
-            //feladat.mx = tomb;
-            // TODO clear screen, TODO test determinant
-            draw_map(sc);
-            draw_bsz_feladat(sc, feladat);
-            for (int i = 0; i < 3; i++) free(feladat.mx[i]);
-            free(feladat.mx);
+
+            if (answer == good) {
+                starting_score = score / 2;
+            }
+
+            feladat_free(feladat);
         } else {
             firstgame = false;
         }
 
-        int score = play_game(sc, player_count, 0);
+        if (exit) break;
+
+        score = play_game(sc, player_count, starting_score);
 
         if (score == -1) break;
 
@@ -193,7 +202,6 @@ void run_app(INTERFACE_TYPE interface_type, int player_count) {
             close_leaderboard(lb);
         }
 
-        // BUG néha újraindul kérdés nélkül konzolban, ha nekimegy az x-nek (farkának) - szerintem már megjavult, input probléma lehetett
         exit = !ask_new_game(sc);
     }
 
@@ -201,13 +209,9 @@ void run_app(INTERFACE_TYPE interface_type, int player_count) {
 }
 
 int main(int argc, char **argv) {
-    /*printf("%d\n", (2324 % 232));
-    printf("%d\n", kongruencia(57, 99, 273));
-    return 0;*/
-
     INTERFACE_TYPE interface_type = TYPE_GUI, player_count = 1;
-    if (argc > 1) {
-        interface_type = stoi(argv[1], TYPE_CLI);
+    if (argc > 1 && argv[1][0] == '0' && argv[1][1] == '\0') {
+        interface_type = TYPE_CLI;
     }
     if (argc > 2) {
         player_count = stoi(argv[2], 2);

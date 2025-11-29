@@ -11,7 +11,7 @@
  * @brief Ilyen feladatokat lehet feladni játék után a játékosnak pluszpontért.
  */
 typedef enum BSzFeladatTipus {
-    LNKO, KONGRUENCIA, PRIME, DETERMINANS
+    LNKO = 0, KONGRUENCIA = 1, PRIME = 2, DETERMINANS = 3
 } BSzFeladatTipus;
 
 /**
@@ -36,7 +36,7 @@ long long lnko(long long a, long long b);
 /**
  * @brief Megadja az `ax === b (mod m)` kongruenciarendszer legkisebb megoldását.
  * 
- * @return `x` értéke (`0 <= x < m`)
+ * @return `x` legkisebb pozitív értéke (`0 <= x < m`)
  */
 long long kongruencia(long long a, long long b, long long m);
 
@@ -55,7 +55,39 @@ bool prime(long long p);
  * 
  * @param mx A mátrix
  * @param n A mátrix mérete
+ * 
+ * @return A mátrix determinánsa
  */
 double det(double **mx, int n);
+
+/**
+ * @brief Prím/összetett szám generálása.
+ * 
+ * @param legyenprim `true` - prímet, `false` - összetett számot generál
+ * @param min A lehető legkisebb érték
+ * @param max A lehető legnagyobb érték
+ * 
+ * @return A generált szám
+ */
+int randomprim(bool legyenprim, int min, int max);
+
+/**
+ * @brief Generál egy random feladványt.
+ * 
+ * @return A generált feladvány. Fel kell `feladat_free`-vel szabadítani a benne dinamikusan foglalt mátrix miatt!
+ */
+BSzFeladat feladat_generalas();
+
+/**
+ * @brief Megold egy feladatot.
+ */
+int get_answer(BSzFeladat feladat);
+
+/**
+ * @brief Felszabadítja a megadott `BSzFeladat` struct `mx` paraméterét
+ * 
+ * @param feladat A felszabadítandó struct
+ */
+void feladat_free(BSzFeladat feladat);
 
 #endif // _BSZ_H

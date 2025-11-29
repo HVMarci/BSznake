@@ -180,8 +180,7 @@ int cli_next_frame(double wait_time, SNAKE_KEY *keybuf, int bufsize) {
             SNAKE_KEY key = SNAKE_KEY_NONE;
             switch (k2) {
                 case KEY_ESCAPE:
-                    key = SNAKE_KEY_ESCAPE;
-                    break;
+                    return -1;
                 case KEY_UP:
                     key = SNAKE_KEY_UP;
                     break;
@@ -263,9 +262,23 @@ int cli_draw_bsz_feladat(BSzFeladat feladat) {
             break;
     }
     
+#ifdef _WIN32
+    ShowConsoleCursor(true);
+#endif // _WIN32
     int ans;
     scanf("%d", &ans);
+#ifdef _WIN32
+    ShowConsoleCursor(false);
+#endif // _WIN32
     return ans;
+}
+
+void cli_draw_bsz_result(bool siker, int jo) {
+    if (siker) {
+        printf("Jó megoldás!\n");
+    } else {
+        printf("Rossz megoldás, a helyes: %d\n", jo);
+    }
 }
 
 void cli_exit() {

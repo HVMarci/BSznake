@@ -125,6 +125,14 @@ int draw_bsz_feladat(Screen const *sc, BSzFeladat feladat) {
     }
 }
 
+void draw_bsz_result(Screen const *sc, bool siker, int jo) {
+    if (sc->type == TYPE_CLI) {
+        cli_draw_bsz_result(siker, jo);
+    } else {
+        gui_draw_bsz_result(sc, siker, jo);
+    }
+}
+
 void free_screen(Screen *sc) {
     if (sc->type == TYPE_CLI) {
         cli_exit();

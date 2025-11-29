@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "econio.h"
+#include "helper.h"
 #include "debugmalloc.h"
 
 void init_snake(Snake *s, int len, int x, int y, DIR dir, Color col) {
@@ -124,14 +125,6 @@ void shorten_snake(Snake *s) {
     s->tail->next = NULL;
 }
 
-int cmp(const void *pa, const void *pb) {
-    int a = *(const int *) pa;
-    int b = *(const int *) pb;
-    if (a < b) return -1;
-    if (a == b) return 0;
-    return 1;
-}
-
 void fill_posbuf(Coord dim, Snake **snakes, int snake_count, int *posbuf) {
     int bufi = 0;
     for (int i = 0; i < snake_count; i++) {
@@ -142,7 +135,7 @@ void fill_posbuf(Coord dim, Snake **snakes, int snake_count, int *posbuf) {
         }
     }
     posbuf[bufi] = -1;
-    qsort(posbuf, bufi, sizeof(int), cmp);
+    qsort(posbuf, bufi, sizeof(int), int_cmp);
 }
 
 int check_snake(Coord dim, Snake const *s, int const *posbuf) {

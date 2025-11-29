@@ -174,12 +174,28 @@ bool ask_new_game(Screen const *sc);
  * @param keybuf Egy puffer, amiben a függvény eltárolhatja a lenyomott billentyűket
  * @param bufsize A puffer mérete - ennél több billentyűlenyomást nem tárol el a függvény
  * 
- * @return A beolvasott billentyűk száma
+ * @return A beolvasott billentyűk száma VAGY `-1` -> exit event (GUI) vagy Escape
  */
 int next_frame(Screen const *sc, double wait_time, SNAKE_KEY *keybuf, int bufsize);
 
-// TODO doksi
+/**
+ * @brief Kirajzol egy BSz feladatot, és válasz vár rá.
+ * 
+ * @param sc Az `init_screen`-től kapott mutató a Screen struct-ra
+ * @param feladat A megoldandó feladat
+ * 
+ * @return A feladatra adott megoldás
+ */
 int draw_bsz_feladat(Screen const *sc, BSzFeladat feladat);
+
+/**
+ * @brief Kiírja, hogy helyes volt-e a megoldás.
+ * 
+ * @param sc Az `init_screen`-től kapott mutató a Screen struct-ra
+ * @param siker Helyes-e a megadott megoldás
+ * @param jo A helyes megoldás
+ */
+void draw_bsz_result(Screen const *sc, bool siker, int jo);
 
 /**
  * @brief Lezárja az `init_screen` által betöltött könyvtárakat és felszabadítja a Screen structot.

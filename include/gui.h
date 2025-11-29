@@ -24,6 +24,7 @@ void gui_draw_top5(Screen const *sc, Leaderboard const *lb);
 bool gui_ask_new_game(Screen const *sc);
 int gui_next_frame(double wait_time, SNAKE_KEY *keybuf, int bufsize);
 int gui_draw_bsz_feladat(Screen const *sc, BSzFeladat feladat);
+void gui_draw_bsz_result(Screen const *sc, bool siker, int jo);
 void gui_exit(Screen *sc);
 
 #endif // _GUI_H
