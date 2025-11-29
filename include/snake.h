@@ -7,6 +7,30 @@
 
 #include <stdbool.h>
 
+/**
+ * @brief A lenyomott gomb értéke.
+ */
+typedef enum SNAKE_KEY {
+    SNAKE_KEY_NONE, /**< Semmi nem lett lenyomva */
+    SNAKE_KEY_ESCAPE, /**< Esc */
+    SNAKE_KEY_UP, /**< Fel nyíl */
+    SNAKE_KEY_RIGHT, /**< Jobbra nyíl */
+    SNAKE_KEY_DOWN, /**< Le nyíl */
+    SNAKE_KEY_LEFT, /**< Balra nyíl */
+    SNAKE_KEY_W = 'w', /**< W */
+    SNAKE_KEY_A = 'a', /**< A */
+    SNAKE_KEY_S = 's', /**< S */
+    SNAKE_KEY_D = 'd', /**< D */
+    SNAKE_KEY_I = 'i', /**< I */
+    SNAKE_KEY_J = 'j', /**< J */
+    SNAKE_KEY_K = 'k', /**< K */
+    SNAKE_KEY_L = 'l', /**< L */
+    SNAKE_KEY_T = 't', /**< T */
+    SNAKE_KEY_F = 'f', /**< F */
+    SNAKE_KEY_G = 'g', /**< G */
+    SNAKE_KEY_H = 'h' /**< H */
+} SNAKE_KEY;
+
 // blokk típusok
 // vízszintes
 /*#define TP_VSZ 0
@@ -99,7 +123,8 @@ typedef struct Block {
     TP type; /**< Konzolon milyen karakterként jelenjen meg? */
     DIR dir; /**< Milyen irányban van a fej felé lévő következő blokk? (konzolos megjelenítés miatt) */
     Color col; /**< A megjelenítés színe */
-    struct Block *next, *prev; /**< A duplán láncolt lista előző és következő eleme (TODO jó ez így, vagy két komment kell?) */
+    struct Block *next; /**< A duplán láncolt lista előző eleme */
+    struct Block *prev; /**< A duplán láncolt lista következő eleme */
 } Block;
 
 /**
@@ -110,7 +135,7 @@ typedef struct Block {
 typedef struct Snake {
     int len; /**< A kígyó hossza */
     bool alive; /**< Él-e még a kígyó */
-    //double speed; /**< A kígyó "sebessége" - hány mp telik el két képkocka között */
+    SNAKE_KEY buttons[4]; /**< Milyen gombokkal lehet irányítani (fel, jobbra, le, balra sorrendben) */
     Block *head; /**< A láncolt lista eleje */
     Block *tail; /**< A láncolt lista vége */
 } Snake;
@@ -122,12 +147,13 @@ typedef struct Snake {
  * 
  * @param s Az inicializálandó Snake struct
  * @param len A kígyó hossza
- * @param x A fej pozíciója
- * @param y TODO Coord legyen!
+ * @param x A fej x pozíciója
+ * @param y A fej y pozíciója
  * @param dir A kígyó iránya
  * @param col A kígyó színe - GUI-ban a feje ennek az invertáltja lesz
+ * @param buttons Milyen gombokkal lehet irányítani (fel, jobbra, le, balra sorrendben)
  */
-void init_snake(Snake* s, int len, int x, int y, DIR dir, Color col);
+void init_snake(Snake* s, int len, int x, int y, DIR dir, Color col, SNAKE_KEY const buttons[4]);
 
 /**
  * @brief Új Snake struktúra dinamikus foglalása, majd inicializálása.
@@ -135,14 +161,15 @@ void init_snake(Snake* s, int len, int x, int y, DIR dir, Color col);
  * A létrehozott kígyót `free_snake`-kel fel kell szabadítani!
  * 
  * @param len A kígyó hossza
- * @param x A fej pozíciója
- * @param y TODO Coord legyen!
+ * @param x A fej x pozíciója
+ * @param y A fej y pozíciója
  * @param dir A kígyó iránya
  * @param col A kígyó színe - GUI-ban a feje ennek az invertáltja lesz
+ * @param buttons Milyen gombokkal lehet irányítani (fel, jobbra, le, balra sorrendben)
  * 
  * @return Mutató a heap-en létrejött Snake struct-ra
  */
-Snake *new_snake(int len, int x, int y, DIR dir, Color col);
+Snake *new_snake(int len, int x, int y, DIR dir, Color col, SNAKE_KEY const buttons[4]);
 
 /**
  * @brief A Snake adatstrukrúra felszabadítása.
@@ -175,7 +202,6 @@ void shorten_snake(Snake *s);
 /**
  * @brief Feltölt egy tömböt a kígyók pozícióival.
  * 
- * TODO mi van itt a const-okkal?
  * @param snakes A kígyókra mutató mutatók tömbje
  * @param snake_count A kígyók száma
  * @param posbuf Mutató egy legalább `SUM(s->len)+1` méretű tömbre, amiben a függvény eltárolhatja a kígyók pozícióit

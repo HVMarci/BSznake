@@ -65,6 +65,8 @@ void gui_draw_map(Screen const *sc) {
 }
 
 void gui_draw_block(Screen const *sc, Block const *b) {
+    if (b->pos.x < 0 || b->pos.y < 0 || b->pos.x >= sc->dim.x || b->pos.y >= sc->dim.y) return;
+
     Color col = b->col;
     if (b->type == TP_HEAD) {
         col.r = ~col.r;
@@ -81,6 +83,8 @@ void gui_draw_snake(Screen const *sc, Snake const *s) {
 }
 
 void gui_erase_block(Screen const *sc, Block const *b) {
+    if (b->pos.x < 0 || b->pos.y < 0 || b->pos.x >= sc->dim.x || b->pos.y >= sc->dim.y) return;
+
     filledCircleRGBA(sc->renderer, (b->pos.x + 1) * sc->block_size + sc->block_size/2, (b->pos.y + 1) * sc->block_size + sc->block_size/2, sc->block_size/2 - 1, 0x00, 0x00, 0x00, 0xFF); // kell az R-1, különben túllóg a mezőn
 }
 

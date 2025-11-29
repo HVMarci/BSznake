@@ -7,14 +7,10 @@
     #include <windows.h>
 #endif // _WIN32
 
-// TODO külön függvény flush-ra
-
 // Vigyázat, UTF-8, több bájtos karakterek!
 // printf("%s")-sel kiírhatóak!
 char const * const TP_CH[] = { "\u2550", "\u2551", "\u2554", "\u2557", "\u255A", "\u255D", "o", "x", "O" };
 char const * const TP_CH_HEAD[] = { "\u0245", ">", "V", "<" };
-//const char TP_CH_SIZE[] = {3, 3, 3, 3, 3, 3, 1, 1};
-//const char TP_CH_INDEX[] = {0, 3, 6, 9, 12, 15, 18, 19};
 
 #ifdef _WIN32
 void ShowConsoleCursor(bool showFlag) {
@@ -34,6 +30,8 @@ void cli_init() {
     SetConsoleOutputCP(65001);
     ShowConsoleCursor(false);
 #endif // _WIN32
+
+    econio_set_title("BSznake");
 
     econio_clrscr();
     econio_rawmode();
@@ -65,7 +63,9 @@ void cli_draw_map(Screen const *sc) {
 }
 
 // minden ptlan x koordinátájú karakterben van kígyó, párosokban a filler vonalak
-void cli_draw_block(Block const *b) {
+void cli_draw_block(Screen const *sc, Block const *b) {
+    if (b->pos.x < 0 || b->pos.y < 0 || b->pos.x >= sc->dim.x || b->pos.y >= sc->dim.y) return;
+
     econio_textcolor(b->col.cli_code);
     if (b->dir == DIR_R && b->type != TP_HEAD) {
         econio_gotoxy(b->pos.x * 2 + 1, b->pos.y + 1);
@@ -89,12 +89,14 @@ void cli_draw_block(Block const *b) {
 
 void cli_draw_snake(Screen const *sc, Snake const *s) {
     for (Block *ptr = s->head; ptr != NULL; ptr = ptr->next) {
-        cli_draw_block(ptr);
+        cli_draw_block(sc, ptr);
     }
     econio_gotoxy(0, sc->dim.y + 2);
 }
 
-void cli_erase_block(Block const *b) {
+void cli_erase_block(Screen const *sc, Block const *b) {
+    if (b->pos.x < 0 || b->pos.y < 0 || b->pos.x >= sc->dim.x || b->pos.y >= sc->dim.y) return;
+
     if (b->dir == DIR_R && b->type != TP_HEAD) {
         econio_gotoxy(b->pos.x * 2 + 1, b->pos.y + 1);
         printf("  ");
@@ -109,7 +111,7 @@ void cli_erase_block(Block const *b) {
 
 void cli_erase_snake(Screen const *sc, Snake const *s) {
     for (Block *ptr = s->head; ptr != NULL; ptr = ptr->next) {
-        cli_erase_block(ptr);
+        cli_erase_block(sc, ptr);
     }
     econio_gotoxy(0, sc->dim.y + 2);
 }
@@ -120,7 +122,7 @@ void cli_flush_screen() {
 
 void cli_draw_score(Screen const *sc, int score) {
     econio_textcolor(COL_WHITE);
-    econio_gotoxy(0, sc->dim.y + 2); // TODO jó?
+    econio_gotoxy(0, sc->dim.y + 2);
     printf("Pontszám: %d\n", score);
 }
 

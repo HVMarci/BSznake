@@ -36,7 +36,7 @@ void draw_map(Screen const *sc) {
 
 void draw_block(Screen const *sc, Block const *b) {
     if (sc->type == TYPE_CLI) {
-        cli_draw_block(b);
+        cli_draw_block(sc, b);
     } else {
         gui_draw_block(sc, b);
     }
@@ -52,7 +52,7 @@ void draw_snake(Screen const *sc, Snake const *s) {
 
 void erase_block(Screen const *sc, Block const *b) {
     if (sc->type == TYPE_CLI) {
-        cli_erase_block(b);
+        cli_erase_block(sc, b);
     } else {
         gui_erase_block(sc, b);
     }

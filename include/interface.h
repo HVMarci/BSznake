@@ -77,7 +77,7 @@ Screen *init_screen(int w, int h, INTERFACE_TYPE type, int block_size);
  * @brief Kirajzolja a pályát.
  * 
  * Felrajzolja a pálya szélét.
- * Nem flush-olja a kijelzőt! (TODO!!!)
+ * Nem flush-olja a kijelzőt!
  * 
  * @param sc Az `init_screen`-től kapott mutató a Screen struct-ra
  */
@@ -86,7 +86,7 @@ void draw_map(Screen const *sc);
 /**
  * @brief Kirajzol egy blokkot.
  * 
- * Kirajzol egy blokkot a képernyő flush-olása nélkül. (TODO!!!)
+ * Kirajzol egy blokkot a képernyő flush-olása nélkül.
  * 
  * @param sc Az `init_screen`-től kapott mutató a Screen struct-ra
  * @param b Mutató a kirajzolandó blokkra
@@ -96,7 +96,7 @@ void draw_block(Screen const *sc, Block const *b);
 /**
  * @brief Kirajzolja a kígyót.
  * 
- * Kirajzol egy kígyót a képernyő flush-olása nélkül. (TODO!!!)
+ * Kirajzol egy kígyót a képernyő flush-olása nélkül.
  * 
  * @param sc Az `init_screen`-től kapott mutató a Screen struct-ra
  * @param s Mutató a kirajzolandó kígyóra
@@ -106,7 +106,7 @@ void draw_snake(Screen const *sc, Snake const *s);
 /**
  * @brief Letöröl egy blokkot a képernyőről.
  * 
- * Letöröl egy blokkot a képernyő flush-olása nélkül. (TODO!!!)
+ * Letöröl egy blokkot a képernyő flush-olása nélkül.
  * 
  * @param sc Az `init_screen`-től kapott mutató a Screen struct-ra
  * @param b Mutató a letörlendő blokkra
@@ -116,7 +116,7 @@ void erase_block(Screen const *sc, Block const *b);
 /**
  * @brief Letöröli a kígyót a képernyőről.
  * 
- * Letöröl egy kígyót a képernyő flush-olása nélkül. (TODO!!!)
+ * Letöröl egy kígyót a képernyő flush-olása nélkül.
  * 
  * @param sc Az `init_screen`-től kapott mutató a Screen struct-ra
  * @param s Mutató a letörlendő kígyóra
@@ -174,7 +174,7 @@ bool ask_new_game(Screen const *sc);
  * @param keybuf Egy puffer, amiben a függvény eltárolhatja a lenyomott billentyűket
  * @param bufsize A puffer mérete - ennél több billentyűlenyomást nem tárol el a függvény
  * 
- * @return A beolvasott billentyűk száma VAGY `-1` -> exit event (GUI) vagy Escape
+ * @return A beolvasott billentyűk száma VAGY `-1` -> exit event (GUI) vagy Esc
  */
 int next_frame(Screen const *sc, double wait_time, SNAKE_KEY *keybuf, int bufsize);
 

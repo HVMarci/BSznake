@@ -5,9 +5,12 @@
 #include "helper.h"
 #include "debugmalloc.h"
 
-void init_snake(Snake *s, int len, int x, int y, DIR dir, Color col) {
+void init_snake(Snake *s, int len, int x, int y, DIR dir, Color col, SNAKE_KEY const buttons[4]) {
     s->len = len;
     s->alive = true;
+
+    for (int i = 0; i < 4; i++) s->buttons[i] = buttons[i];
+
     s->head = (Block *) malloc(sizeof(Block));
     s->head->pos.x = x;
     s->head->pos.y = y;
@@ -41,7 +44,6 @@ void init_snake(Snake *s, int len, int x, int y, DIR dir, Color col) {
         cur->next->type = (dir == DIR_R || dir == DIR_L) ?  TP_VSZ : TP_FG;
         cur->next->dir = dir;
         cur->next->col = col;
-        //s->head->dir = dir; // ?
         cur->next->next = NULL;
         cur->next->prev = cur;
 
@@ -51,12 +53,9 @@ void init_snake(Snake *s, int len, int x, int y, DIR dir, Color col) {
     s->tail = cur;
 }
 
-/**
- * Snake must be freed!
- */
-Snake *new_snake(int len, int x, int y, DIR dir, Color col) {
+Snake *new_snake(int len, int x, int y, DIR dir, Color col, SNAKE_KEY const buttons[4]) {
     Snake *s = (Snake *) malloc(sizeof(Snake));
-    init_snake(s, len, x, y, dir, col);
+    init_snake(s, len, x, y, dir, col, buttons);
     return s;
 }
 
@@ -69,7 +68,6 @@ void free_snake(Snake *s) {
     free(s);
 }
 
-// TODO kígyó hossz min 5!!
 void move_snake(Snake *s, DIR dir) {
     Block *head = (Block *) malloc(sizeof(Block));
     head->dir = dir;
@@ -106,9 +104,6 @@ void move_snake(Snake *s, DIR dir) {
         else if (d == DIR_D) s->head->type = TP_BF;
         break;
     }
-
-    //cli_draw_block(s->head);
-    //cli_draw_block(head);
 
     head->next = s->head;
     s->head->dir = head->dir;
@@ -161,4 +156,3 @@ int exclude_snakes(int pos, int const *posbuf) {
 
     return pos;
 }
-

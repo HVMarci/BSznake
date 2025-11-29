@@ -18,17 +18,15 @@ typedef struct InitData {
     SNAKE_KEY keys[4]; // urdl order
 } InitData;
 
-// TODO gombok is Snake-be!
-// TODO WASD irány jobb lenne! (WDSA helyett)
+// WASD irány jobb lenne! (WDSA helyett)
 InitData const init_snake_data[4] = {
     {10, 8, DIR_R, {50, 168, 82, COL_GREEN}, {SNAKE_KEY_UP, SNAKE_KEY_RIGHT, SNAKE_KEY_DOWN, SNAKE_KEY_LEFT}},
     {20, 13, DIR_U, {43, 82, 173, COL_CYAN}, {SNAKE_KEY_W, SNAKE_KEY_D, SNAKE_KEY_S, SNAKE_KEY_A}},
     {26, 6, DIR_D, {196, 55, 76, COL_RED}, {SNAKE_KEY_I, SNAKE_KEY_L, SNAKE_KEY_K, SNAKE_KEY_J}},
     {29, 12, DIR_L, {184, 196, 55, COL_YELLOW}, {SNAKE_KEY_T, SNAKE_KEY_H, SNAKE_KEY_G, SNAKE_KEY_F}}
-}; // hehe, ugyanazokkal a gombokkal kell mindet irányítani
+};
 
 int play_game(Screen *sc, int player_count, int starting_score) {
-    // TODO legyen lassabb!
     Snake **snakes = (Snake **) malloc(player_count * sizeof(Snake *));
     double game_speed = .1; // nem lehet Snake-ben, mert minden játékos között közösnek kell lennie
     int alive_count = player_count; // hányan vannak még életben
@@ -37,7 +35,7 @@ int play_game(Screen *sc, int player_count, int starting_score) {
 
     int sumlen = player_count * (starting_len + 5); // A kígyók hossza összesen
     for (int i = 0; i < player_count; i++) {
-        snakes[i] = new_snake(starting_len + 5, init_snake_data[i].x, init_snake_data[i].y, init_snake_data[i].dir, init_snake_data[i].col);
+        snakes[i] = new_snake(starting_len + 5, init_snake_data[i].x, init_snake_data[i].y, init_snake_data[i].dir, init_snake_data[i].col, init_snake_data[i].keys);
     }
     int *posbuf = (int *) malloc((sc->dim.x * sc->dim.y + 1) * sizeof(int));
     const int KEYBUF_SIZE = 32;
@@ -78,13 +76,13 @@ int play_game(Screen *sc, int player_count, int starting_score) {
             for (int k = 0; k < rc; k++) {
                 SNAKE_KEY key = keybuf[k];
                 for (int j = 0; j < 4; j++) {
-                    if (key == init_snake_data[i].keys[j]) dir = j;
+                    if (key == s->buttons[j]) dir = j;
                 }
             }
 
             if (dir == (s->head->dir + 2u) % 4) dir = s->head->dir;
         
-            erase_snake(sc, s);
+            //erase_snake(sc, s);
             move_snake(s, dir);
 
             if (s->head->pos.x == apple->pos.x && s->head->pos.y == apple->pos.y) {
@@ -98,8 +96,9 @@ int play_game(Screen *sc, int player_count, int starting_score) {
                 // minél többen élnek még, annál több pontot ér az alma
                 score += alive_count;
                 // legyen a játék gyorsabb
-                game_speed *= .98;
+                game_speed *= .995;
             } else {
+                erase_block(sc, s->tail);
                 shorten_snake(s);
             }
         }
@@ -115,6 +114,8 @@ int play_game(Screen *sc, int player_count, int starting_score) {
                 case COLL_WALL:
                     s->alive = false;
                     alive_count--;
+                    erase_snake(sc, s);
+
                     if (alive_count == 0) end_game = true;
                     break;
                 default:
@@ -126,7 +127,7 @@ int play_game(Screen *sc, int player_count, int starting_score) {
 
         if (apple->pos.x == -1) {
             // alma áthelyezése
-            int newpos = exclude_snakes(randint(0, (sc->dim.x * sc->dim.y - sumlen - 1)/3), posbuf);
+            int newpos = exclude_snakes(randint(0, sc->dim.x * sc->dim.y - sumlen - 1), posbuf);
 
             apple->pos.x = newpos % sc->dim.x;
             apple->pos.y = newpos / sc->dim.x;
@@ -150,7 +151,7 @@ int play_game(Screen *sc, int player_count, int starting_score) {
 void run_app(INTERFACE_TYPE interface_type, int player_count) {
     srand(time(NULL));
 
-    // TODO query window size - windows.h-ból?
+    // Ötlet - query window size - windows.h-ból?
     Screen *sc = init_screen(35, 20, interface_type, 20);
     char results_filename[16];
     sprintf(results_filename, "results%dp.txt", player_count);
