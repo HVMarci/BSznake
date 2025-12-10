@@ -151,23 +151,26 @@ BSzFeladat feladat_generalas() {
     feladat.mx = NULL;
 
     switch (feladat.type) {
-        case LNKO:
+        case LNKO: {
             int lnko = randint(1, 30);
             feladat.a = randint(1, 30) * lnko;
             feladat.b = randint(1, 30) * lnko;
             break;
-        case KONGRUENCIA:
+        }
+        case KONGRUENCIA: {
             feladat.c = randint(20, 500);
             feladat.a = randint(1, feladat.c);
             feladat.b = randint(1, feladat.c);
             break;
-        case PRIME:
+        }
+        case PRIME: {
             bool legyenprim = randint(0, 1);
             feladat.a = randomprim(legyenprim, 1000, 10000);
             // a páros és az öttel osztható számok túl könnyűek
             while (feladat.a % 2 == 0 || feladat.a % 5 == 0) feladat.a += 1;
             break;
-        case DETERMINANS:
+        }
+        case DETERMINANS: {
             // a determináns értéke mindig egész lesz
             int n = randint(3, 4);
             int det = 1;
@@ -194,6 +197,7 @@ BSzFeladat feladat_generalas() {
                 det *= hanyszor;
             }
             break;
+        }
     }
 
     return feladat;
